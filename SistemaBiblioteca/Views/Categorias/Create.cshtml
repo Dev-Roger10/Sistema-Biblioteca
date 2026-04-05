@@ -1,0 +1,45 @@
+@model SistemaBiblioteca.Models.Categoria
+
+@{
+    ViewData["Title"] = "Nueva Categoría";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow">
+   <div class="card-header bg-color2 text-white">
+             <h3 class="mb-0">
+   <i class="fas fa-plus"></i> Nueva Categoría
+        </h3>
+    </div>
+   <div class="card-body p-4">
+   <form asp-action="Create" method="post">
+   @Html.AntiForgeryToken()
+   <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+          <label asp-for="NombreCategoria" class="form-label fw-semibold color2">Nombre de la Categoría *</label>
+        <input asp-for="NombreCategoria" class="form-control form-control-lg"
+     placeholder="Ej: Ficción, No ficción, Tecnología..." required>
+   <span asp-validation-for="NombreCategoria" class="text-danger small"></span>
+        </div>
+
+   <div class="d-grid gap-2">
+ <button type="submit" class="btn btn-primary btn-lg">
+ <i class="fas fa-save"></i> Crear Categoría
+ </button>
+           <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-times"></i> Cancelar
+   </a>
+        </div>
+    </form>
+       </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+@{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

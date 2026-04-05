@@ -1,0 +1,94 @@
+@model SistemaBiblioteca.Models.Usuario
+
+@{
+  ViewData["Title"] = "Editar Perfil";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+   <div class="card border-0 shadow">
+            <div class="card-header bg-primary text-white">
+  <h3 class="mb-0">
+     <i class="fas fa-user-edit"></i> Editar Mi Perfil
+                </h3>
+     </div>
+            <div class="card-body p-4">
+        <form asp-action="EditarPerfil" method="post">
+         @Html.AntiForgeryToken()
+
+     <input type="hidden" asp-for="IdUsuario">
+<input type="hidden" asp-for="IdRol">
+                 <input type="hidden" asp-for="Contrasena">
+    <input type="hidden" asp-for="FechaRegistro">
+          <input type="hidden" asp-for="Activo">
+
+  <div class="row g-3">
+     <!-- Nombres -->
+         <div class="col-md-6">
+   <label class="form-label fw-semibold">Nombres *</label>
+            <input type="text" asp-for="Nombres" class="form-control form-control-lg" required>
+           <span asp-validation-for="Nombres" class="text-danger small"></span>
+   </div>
+
+          <!-- Apellidos -->
+     <div class="col-md-6">
+       <label class="form-label fw-semibold">Apellidos *</label>
+               <input type="text" asp-for="Apellidos" class="form-control form-control-lg" required>
+              <span asp-validation-for="Apellidos" class="text-danger small"></span>
+  </div>
+
+   <!-- DNI (Solo lectura) -->
+   <div class="col-md-6">
+   <label class="form-label fw-semibold">DNI *</label>
+       <input type="text" asp-for="DNI" class="form-control form-control-lg" readonly>
+      <small class="text-muted">No puedes cambiar tu DNI</small>
+    </div>
+
+              <!-- Correo -->
+      <div class="col-md-6">
+                <label class="form-label fw-semibold">Correo Electrónico *</label>
+       <input type="email" asp-for="Correo" class="form-control form-control-lg" required>
+                  <span asp-validation-for="Correo" class="text-danger small"></span>
+ </div>
+
+           <!-- Teléfono -->
+<div class="col-md-6">
+        <label class="form-label fw-semibold">Teléfono</label>
+     <input type="tel" asp-for="Telefono" class="form-control form-control-lg" placeholder="Opcional">
+     <span asp-validation-for="Telefono" class="text-danger small"></span>
+         </div>
+
+      <!-- Dirección -->
+        <div class="col-md-6">
+     <label class="form-label fw-semibold">Dirección</label>
+<input type="text" asp-for="Direccion" class="form-control form-control-lg" placeholder="Opcional">
+  <span asp-validation-for="Direccion" class="text-danger small"></span>
+         </div>
+  </div>
+
+ <!-- Botones -->
+       <div class="d-grid gap-2 mt-4">
+     <button type="submit" class="btn btn-primary btn-lg">
+  <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+     <a asp-action="Perfil" class="btn btn-outline-secondary">
+  <i class="fas fa-times"></i> Cancelar
+         </a>
+ </div>
+      </form>
+            </div>
+        </div>
+
+        <!-- Nota informativa -->
+        <div class="alert alert-info mt-3" role="alert">
+            <i class="fas fa-info-circle"></i>
+        <strong>Información:</strong> Tu DNI no puede ser modificado. Si necesitas cambiar tu correo, teléfono o dirección, puedes hacerlo aquí.
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+@{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

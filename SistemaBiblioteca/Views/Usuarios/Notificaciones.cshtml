@@ -1,0 +1,137 @@
+﻿@model IEnumerable<SistemaBiblioteca.Models.Notificacion>
+
+@{
+    ViewData["Title"] = "Notificaciones";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold">
+            <i class="fas fa-bell text-primary"></i> Mis Notificaciones
+        </h2>
+        <p class="text-muted">Centro de mensajes y alertas</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-outline-primary" onclick="marcarTodasLeidas()">
+            <i class="fas fa-check-double"></i> Marcar todas como leídas
+        </button>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4 border-0 shadow-sm">
+    <div class="card-body">
+        <div class="btn-group" role="group">
+            <a href="?filtro=todas" class="btn btn-outline-primary @(ViewBag.Filtro != "noLeidas" ? "active" : "")">
+                Todas
+            </a>
+            <a href="?filtro=noLeidas" class="btn btn-outline-primary @(ViewBag.Filtro == "noLeidas" ? "active" : "")">
+                No Leídas (@ViewBag.NoLeidas)
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Notificaciones -->
+<div class="row">
+    @if (Model.Any())
+    {
+        @foreach (var notif in Model)
+        {
+            <div class="col-12 mb-3">
+                <div class="card border-0 shadow-sm @(notif.Leida ? "" : "border-start border-primary border-3")">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-2">
+                                    @switch (notif.TipoNotificacion)
+                                    {
+                                        case "Préstamo":
+                                            <i class="fas fa-book text-success fa-2x me-3"></i>
+                                            break;
+                                        case "Reserva":
+                                            <i class="fas fa-bookmark text-info fa-2x me-3"></i>
+                                            break;
+                                        case "Sanción":
+                                            <i class="fas fa-exclamation-triangle text-danger fa-2x me-3"></i>
+                                            break;
+                                        case "Devolución":
+                                            <i class="fas fa-undo text-warning fa-2x me-3"></i>
+                                            break;
+                                        default:
+                                            <i class="fas fa-envelope text-secondary fa-2x me-3"></i>
+                                            break;
+                                    }
+                                    <div>
+                                        <h5 class="mb-1 @(notif.Leida ? "text-muted" : "")">
+                                            @notif.Asunto
+                                        </h5>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i>
+                                            @notif.FechaEnvio.ToString("dd/MM/yyyy HH:mm")
+                                        </small>
+                                    </div>
+                                </div>
+                                <p class="mb-0 @(notif.Leida ? "text-muted" : "")">
+                                    @notif.Mensaje
+                                </p>
+                            </div>
+                            <div class="ms-3">
+                                @if (!notif.Leida)
+                                {
+                                    <button class="btn btn-sm btn-primary"
+                                            onclick="marcarLeida(@notif.IdNotificacion)">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                }
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="eliminarNotificacion(@notif.IdNotificacion)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-bell-slash fa-5x text-muted mb-3"></i>
+                    <h4 class="text-muted">No tienes notificaciones</h4>
+                    <p class="text-muted">Aquí aparecerán tus mensajes y alertas</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function marcarLeida(id) {
+            $.post('@Url.Action("MarcarLeida", "Usuarios")', { id: id }, function() {
+                location.reload();
+            });
+        }
+
+        function marcarTodasLeidas() {
+            if (confirm('¿Marcar todas las notificaciones como leídas?')) {
+                $.post('@Url.Action("MarcarTodasLeidas", "Usuarios")', function() {
+                    location.reload();
+                });
+            }
+        }
+
+        function eliminarNotificacion(id) {
+            if (confirm('¿Eliminar esta notificación?')) {
+                $.post('@Url.Action("EliminarNotificacion", "Usuarios")', { id: id }, function() {
+                    location.reload();
+                });
+            }
+        }
+    </script>
+    @Html.AntiForgeryToken()
+}

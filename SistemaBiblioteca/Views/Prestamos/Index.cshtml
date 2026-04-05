@@ -1,0 +1,167 @@
+﻿@model IEnumerable<SistemaBiblioteca.Models.Prestamo>
+
+@{
+    ViewData["Title"] = "Gestión de Préstamos";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold color1">
+            <i class="fas fa-exchange-alt color2"></i> Gestión de Préstamos
+        </h2>
+        <p class="color2">Administra los préstamos del sistema</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Préstamo
+        </a>
+    </div>
+</div>
+
+<!-- Estadísticas Rápidas -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm border-start border-color2 border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="color2 mb-1">Préstamos Activos</h6>
+                        <h2 class="fw-bold color1 mb-0">@ViewBag.PrestamosActivos</h2>
+                    </div>
+                    <div class="color2">
+                        <i class="fas fa-book-open fa-3x opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm border-start border-danger border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="color2 mb-1">Préstamos Vencidos</h6>
+                            <h2 class="fw-bold color1 mb-0 text-danger">@ViewBag.PrestamosVencidos</h2>
+                        </div>
+                        <div class="text-danger">
+                            <i class="fas fa-exclamation-triangle fa-3x opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold color2">Estado</label>
+                    <select name="filtro" class="form-select">
+                        <option value="">Todos los estados</option>
+                        <option value="activos" selected="@(ViewBag.Filtro == "activos")">Activos</option>
+                        <option value="vencidos" selected="@(ViewBag.Filtro == "vencidos")">Vencidos</option>
+                        <option value="devueltos" selected="@(ViewBag.Filtro == "devueltos")">Devueltos</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold color2">Buscar</label>
+                    <input type="text" name="buscar" class="form-control"
+                           placeholder="Buscar por usuario, DNI o libro...">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold color2">Desde</label>
+                    <input type="date" name="fechaDesde" class="form-control">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Préstamos -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="bg-color2 text-white">
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Libro</th>
+                            <th>Código Ejemplar</th>
+                            <th>F. Préstamo</th>
+                            <th>F. Devolución</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var prestamo in Model)
+                        {
+                            <tr class="@(prestamo.EstaVencido ? "table-danger" : "")">
+                                <td>@prestamo.IdPrestamo</td>
+                                <td>
+                                    <strong>@prestamo.Usuario.NombreCompleto</strong>
+                                    <br><small class="text-muted">@prestamo.Usuario.DNI</small>
+                                </td>
+                                <td>
+                                    <strong>@prestamo.Ejemplar.Libro.Titulo</strong>
+                                    <br><small class="text-muted">@prestamo.Ejemplar.Libro.Autor</small>
+                                </td>
+                                <td><code>@prestamo.Ejemplar.CodigoEjemplar</code></td>
+                                <td>
+                                    <small>@prestamo.FechaPrestamo.ToString("dd/MM/yyyy")</small>
+                                </td>
+                                <td>
+                                    <small>@prestamo.FechaDevolucionEsperada.ToString("dd/MM/yyyy")</small>
+                                    @if (prestamo.EstaVencido && prestamo.EstadoPrestamo == "Activo")
+                                    {
+                                        <br>
+
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-clock"></i>
+                                            @((DateTime.Now - prestamo.FechaDevolucionEsperada).Days) días
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (prestamo.EstadoPrestamo == "Activo")
+                                    {
+                                        @if (prestamo.EstaVencido)
+                                        {
+                                            <span class="badge bg-danger">Vencido</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Activo</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Devuelto</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (prestamo.EstadoPrestamo == "Activo" || prestamo.EstadoPrestamo == "Vencido")
+                                    {
+                                        <a asp-action="Devolver" asp-route-id="@prestamo.IdPrestamo"
+                                           class="btn btn-success btn-sm">
+                                            <i class="fas fa-undo"></i> Devolver
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>

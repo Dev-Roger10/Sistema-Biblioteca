@@ -1,0 +1,91 @@
+﻿@model SistemaBiblioteca.Models.Prestamo
+
+@{
+    ViewData["Title"] = "Registrar Devolución";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-color2 text-white">
+                <h3 class="mb-0 color5">
+                    <i class="fas fa-undo"></i> Registrar Devolución
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <!-- Info del Préstamo -->
+                <div class="alert alert-info border-0" style="background: linear-gradient(135deg, rgba(8,137,255,0.2) 0%, rgba(8,207,255,0.2) 100%); border-left: 4px solid var(--color-2);">
+                    <h5 class="color1"><i class="fas fa-info-circle color2"></i> Información del Préstamo</h5>
+                    <p class="mb-1 color1"><strong>Usuario:</strong> @Model.Usuario.NombreCompleto (@Model.Usuario.DNI)</p>
+                    <p class="mb-1 color1"><strong>Libro:</strong> @Model.Ejemplar.Libro.Titulo</p>
+                    <p class="mb-0 color1"><strong>Código:</strong> @Model.Ejemplar.CodigoEjemplar</p>
+                </div>
+
+                <!-- Fechas -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="card border-0" style="background: linear-gradient(135deg, rgba(8,207,255,0.1) 0%, rgba(14,255,249,0.1) 100%);">
+                            <div class="card-body text-center">
+                                <small class="color2">Fecha de Préstamo</small>
+                                <h5 class="color1">@Model.FechaPrestamo.ToString("dd/MM/yyyy")</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0" style="background: linear-gradient(135deg, rgba(8,207,255,0.1) 0%, rgba(14,255,249,0.1) 100%);">
+                            <div class="card-body text-center">
+                                <small class="color2">Fecha Esperada</small>
+                                <h5 class="color1">@Model.FechaDevolucionEsperada.ToString("dd/MM/yyyy")</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cálculo de Multa -->
+                @if (ViewBag.DiasRetraso > 0)
+                {
+                    <div class="alert alert-danger border-0 bg-danger color5">
+                        <h5 class="color5"><i class="fas fa-exclamation-triangle"></i> Retraso Detectado</h5>
+                        <p class="mb-1 color5">Días de retraso: <strong>@ViewBag.DiasRetraso</strong></p>
+                        <p class="mb-0 color5">Multa a generar: <strong>S/ @ViewBag.Multa</strong></p>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-success border-0 bg-success color5">
+                        <i class="fas fa-check-circle"></i> Devolución a tiempo
+                    </div>
+                }
+
+                <!-- Formulario -->
+                <form asp-action="Devolver" method="post">
+                    <input type="hidden" name="id" value="@Model.IdPrestamo" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold color2">Estado del Ejemplar</label>
+                        <select name="estadoEjemplar" class="form-select" required>
+                            <option value="Disponible">Disponible (Buen estado)</option>
+                            <option value="Mantenimiento">Mantenimiento (Requiere revisión)</option>
+                            <option value="Dañado">Dañado</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold color2">Observaciones</label>
+                        <textarea name="observacionesDevolucion" class="form-control" rows="3"
+                                  placeholder="Ingrese observaciones sobre el estado del libro..."></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check"></i> Confirmar Devolución
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

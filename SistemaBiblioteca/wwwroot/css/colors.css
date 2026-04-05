@@ -1,0 +1,187 @@
+/* 
+Color Palette - Sistema Biblioteca
+   Esta paleta de colores debe usarse en todo el proyecto
+*/
+
+:root {
+  /* Primary Color Palette */
+  --color-1: #034efb;  /* Azul Primario (Textos oscuros, encabezados) */
+  --color-2: #0889ff;    /* Azul Secundario (Navbar, footer) */
+  --color-3: #08cfff;    /* Azul Terciario (Enlaces, botones principales) */
+  --color-4: #0efff9;    /* Cian (Highlights, accesos) */
+  --color-5: #49fff8;    /* Cian Claro (Fondos claros, accents) */
+
+  /* Semantic Colors */
+  --primary-color: var(--color-3);
+  --secondary-color: var(--color-2);
+  --dark-color: var(--color-1);
+  --light-color: var(--color-5);
+  --accent-color: var(--color-4);
+
+  /* Status Colors */
+  --success-color: #10B981;
+  --warning-color: #F59E0B;
+  --danger-color: #EF4444;
+  --info-color: #3B82F6;
+}
+
+/* Text Colors */
+.text-color-1 { color: var(--color-1); }
+.text-color-2 { color: var(--color-2); }
+.text-color-3 { color: var(--color-3); }
+.text-color-4 { color: var(--color-4); }
+.text-color-5 { color: var(--color-5); }
+
+/* Background Colors */
+.bg-color-1 { background-color: var(--color-1); }
+.bg-color-2 { background-color: var(--color-2); }
+.bg-color-3 { background-color: var(--color-3); }
+.bg-color-4 { background-color: var(--color-4); }
+.bg-color-5 { background-color: var(--color-5); }
+
+/* Border Colors */
+.border-color-1 { border-color: var(--color-1); }
+.border-color-2 { border-color: var(--color-2); }
+.border-color-3 { border-color: var(--color-3); }
+.border-color-4 { border-color: var(--color-4); }
+.border-color-5 { border-color: var(--color-5); }
+
+/* Alternative naming convention */
+.color1 { color: var(--color-1); }
+.color2 { color: var(--color-2); }
+.color3 { color: var(--color-3); }
+.color4 { color: var(--color-4); }
+.color5 { color: var(--color-5); }
+
+.bg-color1 { background-color: var(--color-1); }
+.bg-color2 { background-color: var(--color-2); }
+.bg-color3 { background-color: var(--color-3); }
+.bg-color4 { background-color: var(--color-4); }
+.bg-color5 { background-color: var(--color-5); }
+
+/* Gradient Utilities */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--color-2) 0%, var(--color-3) 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, var(--color-3) 0%, var(--color-4) 100%);
+}
+
+.gradient-dark {
+  background: linear-gradient(135deg, var(--color-1) 0%, var(--color-2) 100%);
+}
+
+.gradient-light {
+  background: linear-gradient(135deg, var(--color-4) 0%, var(--color-5) 100%);
+}
+
+/* Shadow utilities with theme colors */
+.shadow-color-1 {
+  box-shadow: 0 4px 12px rgba(19, 25, 41, 0.2);
+}
+
+.shadow-color-2 {
+  box-shadow: 0 4px 12px rgba(13, 69, 107, 0.2);
+}
+
+.shadow-color-3 {
+  box-shadow: 0 4px 12px rgba(8, 131, 188, 0.2);
+}
+
+/* Hover states */
+.text-hover-color-3:hover {
+  color: var(--color-3);
+  transition: color 0.3s ease;
+}
+
+.bg-hover-color-3:hover {
+  background-color: var(--color-3);
+  transition: background-color 0.3s ease;
+}
+
+/* Button color variants */
+.btn-color-1 {
+  background-color: var(--color-1);
+  color: white;
+  border: none;
+}
+
+.btn-color-1:hover {
+  background-color: var(--color-2);
+  color: white;
+}
+
+.btn-color-2 {
+  background-color: var(--color-2);
+  color: white;
+  border: none;
+}
+
+.btn-color-2:hover {
+  background-color: var(--color-1);
+  color: white;
+}
+
+.btn-color-3 {
+  background-color: var(--color-3);
+  color: white;
+  border: none;
+}
+
+.btn-color-3:hover {
+  background-color: var(--color-2);
+  color: white;
+}
+
+.btn-color-4 {
+  background-color: var(--color-4);
+  color: var(--color-1);
+  border: none;
+}
+
+.btn-color-4:hover {
+  background-color: var(--color-5);
+  color: var(--color-1);
+}
+
+/* Link color variants */
+.link-color-1 {
+  color: var(--color-1);
+  text-decoration: none;
+}
+
+.link-color-1:hover {
+  color: var(--color-2);
+}
+
+.link-color-3 {
+  color: var(--color-3);
+  text-decoration: none;
+}
+
+.link-color-3:hover {
+  color: var(--color-2);
+  text-decoration: underline;
+}
+
+/* Badge variants */
+.badge-color-1 {
+  background-color: var(--color-1);
+  color: white;
+}
+
+.badge-color-2 {
+  background-color: var(--color-2);
+  color: white;
+}
+
+.badge-color-3 {
+  background-color: var(--color-3);
+  color: white;
+}
+
+.badge-color-4 {
+  background-color: var(--color-4);
+  color: var(--color-1);
+}

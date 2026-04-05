@@ -1,0 +1,147 @@
+﻿@{
+    ViewData["Title"] = "Nueva Sanción";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> Registrar Nueva Sanción
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+   @Html.AntiForgeryToken()
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Importante:</strong> Las sanciones por retraso se generan automáticamente al devolver libros.
+                        Use este formulario solo para sanciones manuales (daños, pérdidas, etc.)
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Usuario *</label>
+                        <select name="IdUsuario" class="form-select form-select-lg" id="selectUsuario" required>
+                            <option value="">-- Buscar y seleccionar usuario --</option>
+                            @foreach (var user in ViewBag.Usuarios as List<SistemaBiblioteca.Models.Usuario>)
+                            {
+                                <option value="@user.IdUsuario">
+                                    @user.NombreCompleto - DNI: @user.DNI (@(user.Rol?.NombreRol ?? "Sin rol"))
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tipo de Sanción *</label>
+                        <select name="TipoSancion" class="form-select form-select-lg" id="tipoSancion" required>
+                            <option value="">-- Seleccione --</option>
+                            @foreach (var tipo in ViewBag.TiposSancion as List<string>)
+                            {
+                                <option value="@tipo">@tipo</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Monto de la Sanción (S/) *</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">S/</span>
+                            <input type="number" name="Monto" class="form-control"
+                                   step="0.01" min="0.01" max="10000" required id="montoSancion">
+                        </div>
+                        <div class="form-text" id="sugerenciaMonto"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Descripción / Motivo *</label>
+                        <textarea name="Descripcion" class="form-control" rows="4"
+                                  placeholder="Describa el motivo de la sanción..." required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Préstamo Relacionado (Opcional)</label>
+                        <select name="IdPrestamo" class="form-select">
+                            <option value="">-- Sin préstamo asociado --</option>
+                        </select>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle"></i>
+                            Seleccione si la sanción está relacionada con un préstamo específico
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="fas fa-exclamation-circle"></i> Registrar Sanción
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tarjeta informativa -->
+        <div class="card mt-3 border-0 bg-light">
+            <div class="card-body">
+                <h6 class="fw-bold mb-2">
+                    <i class="fas fa-calculator"></i> Montos Sugeridos
+                </h6>
+                <ul class="mb-0">
+                    <li><strong>Retraso:</strong> Se calcula automáticamente (S/ 2.00 por día)</li>
+                    <li><strong>Daño:</strong> S/ 20.00 - S/ 100.00 (según gravedad)</li>
+                    <li><strong>Pérdida:</strong> Valor del libro nuevo</li>
+                    <li><strong>Otro:</strong> Según el caso específico</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sugerencias de monto según tipo
+        $('#tipoSancion').change(function() {
+            const tipo = $(this).val();
+            let sugerencia = '';
+            let monto = '';
+
+            switch(tipo) {
+                case 'Retraso':
+                    sugerencia = 'Nota: Las sanciones por retraso se generan automáticamente';
+                    monto = '2.00';
+                    break;
+                case 'Daño':
+                    sugerencia = 'Sugerido: S/ 20.00 a S/ 100.00 según la gravedad del daño';
+                    monto = '50.00';
+                    break;
+                case 'Pérdida':
+                    sugerencia = 'Sugerido: Valor comercial del libro';
+                    monto = '80.00';
+                    break;
+                case 'Otro':
+                    sugerencia = 'Ingrese el monto según el caso específico';
+                    monto = '';
+                    break;
+            }
+
+            $('#sugerenciaMonto').html('<i class="fas fa-lightbulb text-warning"></i> ' + sugerencia);
+            if (monto) {
+                $('#montoSancion').val(monto);
+            }
+        });
+
+        // Mejorar el select de usuario con búsqueda
+        $('#selectUsuario').select2({
+            placeholder: 'Buscar usuario por nombre o DNI',
+            allowClear: true,
+            width: '100%'
+        });
+    </script>
+
+    <!-- Opcional: Agregar Select2 para mejor búsqueda -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+}

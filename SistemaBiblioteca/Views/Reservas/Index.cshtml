@@ -1,0 +1,166 @@
+@model IEnumerable<SistemaBiblioteca.Models.Reserva>
+
+@{
+    ViewData["Title"] = "Gestionar Reservas";
+}
+
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h2 class="fw-bold color1">
+<i class="fas fa-bookmark color2"></i> Gestionar Reservas
+     </h2>
+        <p class="color2">Panel de administración de reservas de la biblioteca</p>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #FFE066 0%, #FFD43B 100%);">
+         <div class="card-body">
+          <div class="d-flex align-items-center">
+             <div>
+   <h3 class="mb-0 fw-bold">@ViewBag.ReservasPendientes</h3>
+ <p class="mb-0 text-muted">Reservas Pendientes</p>
+      </div>
+      <i class="fas fa-clock fa-3x ms-auto opacity-50"></i>
+      </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #FF6B6B 0%, #EE5A6F 100%);">
+<div class="card-body">
+              <div class="d-flex align-items-center">
+          <div>
+            <h3 class="mb-0 fw-bold">@ViewBag.ReservasVencidas</h3>
+                <p class="mb-0 text-muted">Reservas Vencidas</p>
+  </div>
+      <i class="fas fa-exclamation-triangle fa-3x ms-auto opacity-50"></i>
+       </div>
+      </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+  <form method="get" class="row g-3">
+   <div class="col-md-6">
+  <label class="form-label fw-semibold">Filtrar por estado:</label>
+          <div class="btn-group w-100" role="group">
+             <a href="?filtro=" class="btn btn-outline-primary @(ViewBag.Filtro == null ? "active" : "")">Todos</a>
+        <a href="?filtro=pendientes" class="btn btn-outline-warning @(ViewBag.Filtro == "pendientes" ? "active" : "")">Pendientes</a>
+  <a href="?filtro=confirmadas" class="btn btn-outline-success @(ViewBag.Filtro == "confirmadas" ? "active" : "")">Confirmadas</a>
+  <a href="?filtro=canceladas" class="btn btn-outline-danger @(ViewBag.Filtro == "canceladas" ? "active" : "")">Canceladas</a>
+         <a href="?filtro=vencidas" class="btn btn-outline-secondary @(ViewBag.Filtro == "vencidas" ? "active" : "")">Vencidas</a>
+        </div>
+</div>
+            <div class="col-md-6">
+   <label class="form-label fw-semibold">Buscar por usuario o libro:</label>
+          <div class="input-group">
+      <input type="text" name="buscar" class="form-control" placeholder="DNI, nombre o título..." value="@ViewBag.Buscar">
+  <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+    </div>
+          </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de Reservas -->
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+   <thead class="table-light">
+           <tr>
+         <th><i class="fas fa-id-card color2"></i> Usuario</th>
+               <th><i class="fas fa-book color2"></i> Libro</th>
+       <th><i class="fas fa-calendar color2"></i> Fecha Reserva</th>
+        <th><i class="fas fa-clock color2"></i> Vencimiento</th>
+          <th><i class="fas fa-tag color2"></i> Tipo</th>
+     <th><i class="fas fa-info-circle color2"></i> Estado</th>
+              <th><i class="fas fa-cog color2"></i> Acciones</th>
+  </tr>
+            </thead>
+     <tbody>
+          @if (Model.Any())
+     {
+        @foreach (var reserva in Model)
+     {
+       <tr>
+          <td>
+        <strong>@reserva.Usuario?.NombreCompleto</strong><br>
+              <small class="text-muted">@reserva.Usuario?.DNI</small>
+     </td>
+    <td>
+           <strong>@reserva.Libro?.Titulo</strong><br>
+      <small class="text-muted">@reserva.Libro?.Autor</small>
+           </td>
+          <td>@reserva.FechaReserva.ToString("dd/MM/yyyy")</td>
+        <td>
+      @if (reserva.FechaVencimiento.HasValue)
+           {
+                @reserva.FechaVencimiento.Value.ToString("dd/MM/yyyy")
+      }
+        else
+       {
+ <span class="text-muted">-</span>
+          }
+     </td>
+     <td>
+                  <span class="badge bg-@(reserva.TipoReserva == "Local" ? "primary" : "info")">
+           @reserva.TipoReserva
+     </span>
+   </td>
+       <td>
+         @switch (reserva.EstadoReserva)
+                {
+        case "Pendiente":
+         <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half"></i> Pendiente</span>
+      break;
+             case "Confirmada":
+  <span class="badge bg-success"><i class="fas fa-check-circle"></i> Confirmada</span>
+             break;
+        case "Cancelada":
+           <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Cancelada</span>
+     break;
+     case "Vencida":
+                <span class="badge bg-secondary"><i class="fas fa-calendar-times"></i> Vencida</span>
+           break;
+    }
+           </td>
+           <td>
+       <div class="btn-group btn-group-sm" role="group">
+ @if (reserva.EstadoReserva == "Pendiente")
+     {
+    <a asp-action="Confirmar" asp-route-id="@reserva.IdReserva" class="btn btn-success btn-sm" title="Confirmar reserva">
+             <i class="fas fa-check"></i> Confirmar
+         </a>
+      }
+    <form asp-action="Cancelar" method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro de cancelar esta reserva?')">
+  @Html.AntiForgeryToken()
+       <input type="hidden" name="id" value="@reserva.IdReserva">
+  <input type="hidden" name="motivo" value="Cancelada por administrador">
+    <button type="submit" class="btn btn-danger btn-sm" title="Cancelar reserva">
+  <i class="fas fa-ban"></i> Cancelar
+ </button>
+        </form>
+ </div>
+              </td>
+            </tr>
+         }
+      }
+                else
+      {
+      <tr>
+       <td colspan="7" class="text-center py-4">
+       <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+       <p class="text-muted">No hay reservas registradas</p>
+    </td>
+      </tr>
+       }
+            </tbody>
+        </table>
+    </div>
+</div>

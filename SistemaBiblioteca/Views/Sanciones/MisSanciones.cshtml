@@ -1,0 +1,163 @@
+﻿@model IEnumerable<SistemaBiblioteca.Models.Sancion>
+
+@{
+    ViewData["Title"] = "Mis Sanciones";
+}
+
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h2 class="fw-bold color1">
+            <i class="fas fa-exclamation-circle color2"></i> Mis Sanciones
+        </h2>
+        <p class="color2">Estado de tus multas y pagos</p>
+    </div>
+</div>
+
+<!-- Resumen de Deuda -->
+@if (ViewBag.TotalDeuda > 0)
+{
+    <div class="alert alert-danger border-0 shadow-sm mb-4 bg-danger text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1 color5">
+                    <i class="fas fa-exclamation-triangle"></i> Tienes sanciones pendientes
+                </h5>
+                <p class="mb-0 color5">Deuda total: <strong class="fs-4">S/ @ViewBag.TotalDeuda.ToString("N2")</strong></p>
+            </div>
+            <div>
+                <span class="badge bg-warning fs-5">@ViewBag.SancionesPendientes Pendientes</span>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-success border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, var(--color-3) 0%, var(--color-4) 100%);">
+        <div class="text-center color1">
+            <i class="fas fa-check-circle fa-3x mb-2"></i>
+            <h5 class="mb-0">¡No tienes sanciones pendientes!</h5>
+        </div>
+    </div>
+}
+
+<!-- Lista de Sanciones -->
+<div class="row g-4">
+    @foreach (var sancion in Model)
+    {
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100
+        @(sancion.EstadoSancion == "Pendiente" ? "border-warning border-2" : "")">
+                <div class="card-body">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="badge bg-@(sancion.TipoSancion == "Retraso" ? "warning" : "danger") fs-6">
+                            <i class="fas fa-exclamation-circle"></i> @sancion.TipoSancion
+                        </span>
+                        @switch (sancion.EstadoSancion)
+                        {
+                            case "Pendiente":
+                                <span class="badge bg-danger fs-6">Pendiente</span>
+                                break;
+                            case "Pagada":
+                                <span class="badge bg-success fs-6">Pagada</span>
+                                break;
+                            case "Anulada":
+                                <span class="badge bg-secondary fs-6">Anulada</span>
+                                break;
+                        }
+                    </div>
+
+                    <!-- Descripción -->
+                    <p class="color2 mb-3">
+                        <i class="fas fa-info-circle"></i> @sancion.Descripcion
+                    </p>
+
+                    <!-- Libro Relacionado -->
+                    @if (sancion.Prestamo != null)
+                    {
+                        <div class="alert alert-light border mb-3">
+                            <small class="color2 d-block mb-1">Libro relacionado:</small>
+                            <strong class="color1">@sancion.Prestamo.Ejemplar.Libro.Titulo</strong>
+                        </div>
+                    }
+
+                    <!-- Montos -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-4 text-center">
+                            <div class="card bg-light">
+                                <div class="card-body p-2">
+                                    <small class="text-muted d-block">Monto Total</small>
+                                    <h5 class="mb-0">S/ @sancion.Monto.ToString("N2")</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="card bg-light">
+                                <div class="card-body p-2">
+                                    <small class="text-muted d-block">Pagado</small>
+                                    @{
+                                        var pagado = sancion.Pagos?.Sum(p => p.MontoPagado) ?? 0;
+                                    }
+                                    <h5 class="mb-0 text-success">S/ @pagado.ToString("N2")</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="card bg-light">
+                                <div class="card-body p-2">
+                                    <small class="text-muted d-block">Restante</small>
+                                    <h5 class="mb-0 text-danger">S/ @sancion.MontoRestante.ToString("N2")</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fecha -->
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-calendar"></i>
+                        Fecha: @sancion.FechaSancion.ToString("dd/MM/yyyy")
+                    </p>
+
+                    <!-- Historial de Pagos -->
+                    @if (sancion.Pagos != null && sancion.Pagos.Any())
+                    {
+                        <div class="border-top pt-3">
+                            <h6 class="fw-bold mb-2">
+                                <i class="fas fa-receipt"></i> Pagos Realizados
+                            </h6>
+                            @foreach (var pago in sancion.Pagos)
+                            {
+                                <div class="d-flex justify-content-between mb-1">
+                                    <small class="text-muted">
+                                        @pago.FechaPago.ToString("dd/MM/yyyy") - @pago.MetodoPago
+                                    </small>
+                                    <small class="text-success fw-bold">S/ @pago.MontoPagado.ToString("N2")</small>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <!-- Botón -->
+                    @if (sancion.EstadoSancion == "Pendiente")
+                    {
+                        <div class="mt-3">
+                            <div class="alert alert-warning mb-0">
+                                <i class="fas fa-info-circle"></i>
+                                <small>Acércate a la biblioteca para realizar el pago</small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
+            <h4 class="text-muted">No tienes sanciones</h4>
+            <p class="text-muted">¡Sigue devolviendo a tiempo!</p>
+        </div>
+    }
+</div>

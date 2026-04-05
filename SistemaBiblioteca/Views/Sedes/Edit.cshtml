@@ -1,0 +1,67 @@
+@model SistemaBiblioteca.Models.Sede
+
+@{
+    ViewData["Title"] = "Editar Sede";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+  <div class="card border-0 shadow">
+  <div class="card-header bg-color2 text-white">
+       <h3 class="mb-0">
+  <i class="fas fa-edit"></i> Editar Sede
+    </h3>
+      </div>
+    <div class="card-body p-4">
+  <form asp-action="Edit" method="post">
+  @Html.AntiForgeryToken()
+  <input type="hidden" asp-for="IdSede" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+  <div class="mb-3">
+     <label asp-for="NombreSede" class="form-label fw-semibold color2">Nombre de la Sede *</label>
+       <input asp-for="NombreSede" class="form-control form-control-lg"
+placeholder="Ej: Sede Central, Sede Universitaria..." required>
+    <span asp-validation-for="NombreSede" class="text-danger small"></span>
+         </div>
+
+         <div class="mb-3">
+<label asp-for="Direccion" class="form-label fw-semibold color2">Dirección *</label>
+  <input asp-for="Direccion" class="form-control form-control-lg"
+  placeholder="Ej: Calle Principal 123, Piso 3" required>
+      <span asp-validation-for="Direccion" class="text-danger small"></span>
+ </div>
+
+  <div class="mb-3">
+     <label asp-for="Telefono" class="form-label fw-semibold color2">Teléfono</label>
+   <input asp-for="Telefono" class="form-control">
+  </div>
+
+ <div class="mb-3">
+     <div class="form-check">
+      <input asp-for="Activo" type="checkbox" class="form-check-input" id="activo">
+  <label class="form-check-label color1" for="activo">
+  Sede Activa
+            </label>
+   </div>
+   </div>
+
+        <div class="d-grid gap-2">
+  <button type="submit" class="btn btn-primary btn-lg">
+         <i class="fas fa-save"></i> Guardar Cambios
+       </button>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+    <i class="fas fa-times"></i> Cancelar
+  </a>
+   </div>
+  </form>
+      </div>
+  </div>
+   </div>
+</div>
+
+@section Scripts {
+@{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

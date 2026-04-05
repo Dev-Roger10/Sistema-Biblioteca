@@ -1,0 +1,41 @@
+@model SistemaBiblioteca.Models.Editorial
+
+@{
+    ViewData["Title"] = "Eliminar Editorial";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+ <div class="card border-0 shadow border-danger border-2">
+   <div class="card-header bg-danger text-white">
+      <h3 class="mb-0">
+ <i class="fas fa-trash"></i> Eliminar Editorial
+    </h3>
+   </div>
+     <div class="card-body p-4">
+   <div class="alert alert-danger border-0">
+    <i class="fas fa-exclamation-triangle"></i>
+  ¿Está seguro de que desea eliminar esta editorial?
+       </div>
+
+        <div class="mb-4">
+ <p class="color1 mb-2"><strong>Nombre:</strong> @Model.NombreEditorial</p>
+      </div>
+
+  <form asp-action="Delete" method="post">
+  @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="IdEditorial" />
+
+       <div class="d-grid gap-2">
+      <button type="submit" class="btn btn-danger btn-lg">
+<i class="fas fa-trash"></i> Confirmar Eliminación
+ </button>
+ <a asp-action="Index" class="btn btn-outline-secondary">
+  <i class="fas fa-times"></i> Cancelar
+     </a>
+  </div>
+      </form>
+     </div>
+    </div>
+   </div>
+</div>

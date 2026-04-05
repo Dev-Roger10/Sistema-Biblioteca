@@ -1,0 +1,195 @@
+﻿@model SistemaBiblioteca.Models.Libro
+
+@{
+    ViewData["Title"] = "Editar Libro";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-warning text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-edit"></i> Editar Libro
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="IdLibro">
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8">
+                            <label asp-for="Titulo" class="form-label fw-semibold">Título *</label>
+                            <input asp-for="Titulo" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ISBN" class="form-label fw-semibold">ISBN</label>
+                            <input asp-for="ISBN" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Autor" class="form-label fw-semibold">Autor *</label>
+                            <input asp-for="Autor" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="IdCategoria" class="form-label fw-semibold">Categoría</label>
+                            <select asp-for="IdCategoria" class="form-select">
+                                <option value="">-- Seleccione --</option>
+                                @foreach (var cat in ViewBag.Categorias as List<SistemaBiblioteca.Models.Categoria>)
+                                {
+                                    <option value="@cat.IdCategoria">@cat.NombreCategoria</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="IdEditorial" class="form-label fw-semibold">Editorial</label>
+                            <select asp-for="IdEditorial" class="form-select">
+                                <option value="">-- Seleccione --</option>
+                                @foreach (var ed in ViewBag.Editoriales as List<SistemaBiblioteca.Models.Editorial>)
+                                {
+                                    <option value="@ed.IdEditorial">@ed.NombreEditorial</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label asp-for="AñoPublicacion" class="form-label fw-semibold">Año</label>
+                            <input asp-for="AñoPublicacion" class="form-control" type="number">
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="NumPaginas" class="form-label fw-semibold">Páginas</label>
+                            <input asp-for="NumPaginas" class="form-control" type="number">
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Idioma" class="form-label fw-semibold">Idioma</label>
+                            <input asp-for="Idioma" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Descripcion" class="form-label fw-semibold">Descripción</label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ImagenPortada" class="form-label fw-semibold">URL de Portada</label>
+                        <input asp-for="ImagenPortada" class="form-control">
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input asp-for="Activo" class="form-check-input" type="checkbox" id="estadoLibro">
+                            <label class="form-check-label fw-semibold" for="estadoLibro">
+                                Libro Activo (Disponible en el catálogo)
+                            </label>
+                        </div>
+                        <small class="text-muted">Desactiva el libro para ocultarlo del catálogo</small>
+                    </div>
+
+                    <hr>
+
+                    <h5 class="text-warning mb-3">
+                        <i class="fas fa-copy"></i> Ejemplares Actuales
+                    </h5>
+
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Sede</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ejemplar in Model.Ejemplares)
+                                {
+                                    <tr>
+                                        <td><code>@ejemplar.CodigoEjemplar</code></td>
+                                        <td>@ejemplar.Sede.NombreSede</td>
+                                        <td>
+                                            <span class="badge bg-@(ejemplar.Estado == "Disponible" ? "success" : "warning")">
+                                                @ejemplar.Estado
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3">Agregar Más Ejemplares</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Cantidad</label>
+                                    <input type="number" id="cantidadNuevos" class="form-control"
+                                           min="1" max="50" value="1">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Sede</label>
+                                    <select id="sedeNuevos" class="form-select">
+                                        @foreach (var sede in ViewBag.Sedes as List<SistemaBiblioteca.Models.Sede>)
+                                        {
+                                            <option value="@sede.IdSede">@sede.NombreSede</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-success btn-sm mt-3 w-100"
+                                    onclick="agregarEjemplares(@Model.IdLibro)">
+                                <i class="fas fa-plus"></i> Agregar Ejemplares
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning btn-lg text-white">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function agregarEjemplares(idLibro) {
+            const cantidad = document.getElementById('cantidadNuevos').value;
+            const idSede = document.getElementById('sedeNuevos').value;
+
+            if (confirm(`¿Agregar ${cantidad} ejemplares nuevos?`)) {
+                $.ajax({
+                    url: '@Url.Action("AgregarEjemplar", "Libros")',
+                    type: 'POST',
+                    data: {
+                        idLibro: idLibro,
+                        idSede: idSede,
+                        cantidad: cantidad,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+    @Html.AntiForgeryToken()
+}

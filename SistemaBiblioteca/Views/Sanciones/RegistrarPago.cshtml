@@ -1,0 +1,160 @@
+﻿@model SistemaBiblioteca.Models.Sancion
+
+@{
+    ViewData["Title"] = "Registrar Pago";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-color2 text-white">
+                <h3 class="mb-0 color5">
+                    <i class="fas fa-dollar-sign"></i> Registrar Pago de Sanción
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <!-- Info de la Sanción -->
+                <div class="alert alert-info border-0" style="background: linear-gradient(135deg, rgba(8,137,255,0.2) 0%, rgba(8,207,255,0.2) 100%); border-left: 4px solid var(--color-2);">
+                    <h5 class="color1"><i class="fas fa-info-circle color2"></i> Información de la Sanción</h5>
+                    <p class="mb-1 color1">
+                        <strong>Usuario:</strong> @Model.Usuario.NombreCompleto (@Model.Usuario.DNI)
+                    </p>
+                    <p class="mb-1 color1"><strong>Tipo:</strong> @Model.TipoSancion</p>
+                    <p class="mb-0 color1"><strong>Descripción:</strong> @Model.Descripcion</p>
+                </div>
+
+                <!-- Montos -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 text-center" style="background: linear-gradient(135deg, rgba(8,207,255,0.1) 0%, rgba(14,255,249,0.1) 100%);">
+                            <div class="card-body">
+                                <small class="color2 d-block">Monto Total</small>
+                                <h3 class="fw-bold color1 mb-0">S/ @Model.Monto.ToString("N2")</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-success text-white text-center border-0">
+                            <div class="card-body">
+                                <small class="color5 d-block">Pagado</small>
+                                @{
+                                    var pagado = Model.Pagos?.Sum(p => p.MontoPagado) ?? 0;
+                                }
+                                <h3 class="fw-bold mb-0">S/ @pagado.ToString("N2")</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-danger text-white text-center border-0">
+                            <div class="card-body">
+                                <small class="color5 d-block">Restante</small>
+                                <h3 class="fw-bold mb-0">S/ @Model.MontoRestante.ToString("N2")</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial de Pagos -->
+                @if (Model.Pagos != null && Model.Pagos.Any())
+                {
+                    <div class="alert alert-light border-0" style="background: linear-gradient(135deg, rgba(8,207,255,0.1) 0%, rgba(14,255,249,0.1) 100%); border-left: 4px solid var(--color-3);">
+                        <h6 class="fw-bold mb-2 color1">
+                            <i class="fas fa-history color2"></i> Historial de Pagos
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="color1">Fecha</th>
+                                        <th class="color1">Método</th>
+                                        <th class="color1">Monto</th>
+                                        <th class="color1">Comprobante</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var pago in Model.Pagos)
+                                    {
+                                        <tr>
+                                            <td class="color2">@pago.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td class="color2">@pago.MetodoPago</td>
+                                            <td><strong class="color1">S/ @pago.MontoPagado.ToString("N2")</strong></td>
+                                            <td class="color2">@pago.Comprobante</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+
+                <!-- Formulario de Pago -->
+                <form asp-action="RegistrarPago" method="post">
+                    <input type="hidden" name="idSancion" value="@Model.IdSancion" />
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Monto a Pagar *</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">S/</span>
+                                <input type="number" name="montoPagado" class="form-control"
+                                       step="0.01" min="0.01" max="@Model.MontoRestante"
+                                       value="@Model.MontoRestante" required>
+                            </div>
+                            <div class="form-text">
+                                Máximo: S/ @Model.MontoRestante.ToString("N2")
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Método de Pago *</label>
+                            <select name="metodoPago" class="form-select form-select-lg" required>
+                                <option value="">-- Seleccione --</option>
+                                @foreach (var metodo in ViewBag.MetodosPago as List<string>)
+                                {
+                                    <option value="@metodo">@metodo</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Número de Comprobante</label>
+                        <input type="text" name="comprobante" class="form-control"
+                               placeholder="Ej: BOL001-12345">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Observaciones</label>
+                        <textarea name="observaciones" class="form-control" rows="2"
+                                  placeholder="Información adicional..."></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check"></i> Confirmar Pago
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Validar que el monto no exceda el restante
+        $('form').on('submit', function(e) {
+            const montoPagado = parseFloat($('input[name="montoPagado"]').val());
+            const montoRestante = @Model.MontoRestante;
+
+            if (montoPagado > montoRestante) {
+                e.preventDefault();
+                alert(`El monto no puede exceder S/ ${montoRestante.toFixed(2)}`);
+                return false;
+            }
+        });
+    </script>
+}
