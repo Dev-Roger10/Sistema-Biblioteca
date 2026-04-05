@@ -1,0 +1,187 @@
+﻿@model SistemaBiblioteca.Models.Usuario
+
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <!-- Tarjeta de Perfil -->
+        <div class="card border-0 shadow text-center">
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <i class="fas fa-user-circle fa-5x text-primary"></i>
+                </div>
+                <h4 class="fw-bold mb-1">@Model.NombreCompleto</h4>
+                <p class="text-muted mb-3">@Model.Rol.NombreRol</p>
+
+                <div class="d-grid gap-2">
+                    <a asp-action="EditarPerfil" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Editar Perfil
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-bs-toggle="modal" data-bs-target="#modalCambiarPassword">
+                        <i class="fas fa-key"></i> Cambiar Contraseña
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas Rápidas -->
+        <div class="card border-0 shadow mt-3">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-chart-bar"></i> Mis Estadísticas
+                </h6>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Préstamos Activos</span>
+                        <strong class="text-success">@ViewBag.PrestamosActivos</strong>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-success" style="width: @(ViewBag.PrestamosActivos * 20)%"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Reservas Activas</span>
+                        <strong class="text-info">@ViewBag.ReservasActivas</strong>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-info" style="width: @(ViewBag.ReservasActivas * 33)%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Sanciones Pendientes</span>
+                        <strong class="text-danger">@ViewBag.SancionesPendientes</strong>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-danger" style="width: @(ViewBag.SancionesPendientes * 50)%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <!-- Información Personal -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-id-card"></i> Información Personal
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="text-muted small">DNI</label>
+                        <p class="fw-bold mb-0">@Model.DNI</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Correo Electrónico</label>
+                        <p class="fw-bold mb-0">@Model.Correo</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Teléfono</label>
+                        <p class="fw-bold mb-0">@(Model.Telefono ?? "No registrado")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Fecha de Registro</label>
+                        <p class="fw-bold mb-0">@Model.FechaRegistro.ToString("dd/MM/yyyy")</p>
+                    </div>
+                    <div class="col-12">
+                        <label class="text-muted small">Dirección</label>
+                        <p class="fw-bold mb-0">@(Model.Direccion ?? "No registrada")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actividad Reciente -->
+        <div class="card border-0 shadow">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-history"></i> Actividad Reciente
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    @if (ViewBag.ActividadReciente != null)
+                    {
+                        @foreach (var actividad in ViewBag.ActividadReciente as List<SistemaBiblioteca.Models.HistorialAccion>)
+                        {
+                            <div class="list-group-item border-0">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">@actividad.Accion</h6>
+                                    <small class="text-muted">@actividad.FechaAccion.ToString("dd/MM HH:mm")</small>
+                                </div>
+                                <p class="mb-1 text-muted small">@actividad.Detalles</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-3">No hay actividad reciente</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cambiar Contraseña -->
+<div class="modal fade" id="modalCambiarPassword" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-key"></i> Cambiar Contraseña
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="CambiarContrasena" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña Actual *</label>
+                        <input type="password" name="contrasenaActual" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nueva Contraseña *</label>
+                        <input type="password" name="nuevaContrasena" id="nuevaPass"
+                               class="form-control" minlength="6" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirmar Nueva Contraseña *</label>
+                        <input type="password" name="confirmarContrasena" id="confirmarPass"
+                               class="form-control" minlength="6" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Cambiar Contraseña
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Validar que las contraseñas coincidan
+        $('form').submit(function(e) {
+            const nueva = $('#nuevaPass').val();
+            const confirmar = $('#confirmarPass').val();
+
+            if (nueva !== confirmar) {
+                e.preventDefault();
+                alert('Las contraseñas no coinciden');
+                return false;
+            }
+        });
+    </script>
+}

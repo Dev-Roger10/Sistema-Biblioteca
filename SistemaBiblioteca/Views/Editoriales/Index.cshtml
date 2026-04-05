@@ -1,0 +1,121 @@
+@model IEnumerable<SistemaBiblioteca.Models.Editorial>
+
+@{
+    ViewData["Title"] = "Gestión de Editoriales";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+      <h2 class="fw-bold color1">
+          <i class="fas fa-building color2"></i> Gestión de Editoriales
+   </h2>
+  <p class="color2">Administra las editoriales de libros</p>
+    </div>
+    <div class="col-md-6 text-end">
+      <a asp-action="Create" class="btn btn-primary">
+     <i class="fas fa-plus"></i> Nueva Editorial
+   </a>
+    </div>
+</div>
+
+<!-- Filtro de búsqueda -->
+<div class="card mb-4 border-0 shadow-sm">
+    <div class="card-body">
+  <form method="get" asp-action="Index" class="row g-3">
+     <div class="col-md-8">
+ <label class="form-label fw-semibold color2">Buscar</label>
+   <input type="text" name="buscar" class="form-control"
+         placeholder="Nombre de editorial..." value="@ViewBag.Buscar">
+   </div>
+             <div class="col-md-4 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary w-100">
+   <i class="fas fa-search"></i> Buscar
+      </button>
+        </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de editoriales -->
+<div class="card border-0 shadow-sm">
+   <div class="card-body">
+  <div class="table-responsive">
+      <table class="table table-hover align-middle">
+    <thead class="bg-color2 text-white">
+ <tr>
+    <th><i class="fas fa-hashtag"></i> ID</th>
+           <th><i class="fas fa-building"></i> Nombre</th>
+   <th><i class="fas fa-book"></i> Libros</th>
+  <th><i class="fas fa-toggle-on"></i> Estado</th>
+      <th class="text-center"><i class="fas fa-cogs"></i> Acciones</th>
+     </tr>
+    </thead>
+        <tbody>
+       @if (Model.Any())
+          {
+       @foreach (var editorial in Model)
+ {
+     <tr>
+<td>@editorial.IdEditorial</td>
+        <td>
+ <strong class="color1">@editorial.NombreEditorial</strong>
+        </td>
+   <td>
+   <span class="badge bg-color3">@(editorial.Libros?.Count ?? 0)</span>
+         </td>
+     <td>
+    @if (editorial.Activo)
+          {
+  <span class="badge bg-success">
+      <i class="fas fa-check"></i> Activo
+ </span>
+     }
+           else
+       {
+  <span class="badge bg-secondary">
+       <i class="fas fa-times"></i> Inactivo
+     </span>
+  }
+ </td>
+          <td class="text-center">
+    <div class="btn-group btn-group-sm">
+ <a asp-action="Edit" asp-route-id="@editorial.IdEditorial"
+    class="btn btn-warning" title="Editar">
+    <i class="fas fa-edit"></i>
+ </a>
+  <a asp-action="Delete" asp-route-id="@editorial.IdEditorial"
+     class="btn btn-danger" title="Eliminar">
+     <i class="fas fa-trash"></i>
+</a>
+    </div>
+   </td>
+   </tr>
+ }
+     }
+    else
+    {
+     <tr>
+   <td colspan="5" class="text-center py-5">
+  <i class="fas fa-inbox fa-3x color2 mb-3"></i>
+        <p class="color2">No se encontraron editoriales</p>
+     </td>
+   </tr>
+  }
+ </tbody>
+       </table>
+       </div>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="row g-3 mt-4">
+ <div class="col-md-4">
+  <div class="card border-0 shadow-sm">
+     <div class="card-body text-center">
+ <i class="fas fa-building fa-2x mb-2" style="color: var(--color-2);"></i>
+     <h4 class="fw-bold color1 mb-0">@ViewBag.TotalEditoriales</h4>
+        <small class="color2">Total de Editoriales</small>
+    </div>
+  </div>
+    </div>
+</div>

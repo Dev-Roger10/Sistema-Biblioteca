@@ -1,0 +1,153 @@
+@model SistemaBiblioteca.Models.Usuario
+
+@{
+    ViewData["Title"] = "Crear Nuevo Usuario";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-color2 text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Información Personal -->
+                    <h5 class="color1 mb-3">
+                        <i class="fas fa-user color2"></i> Información Personal
+                    </h5>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Nombres" class="form-label fw-semibold color2">Nombres *</label>
+                            <input asp-for="Nombres" class="form-control" placeholder="Juan Carlos" required>
+                            <span asp-validation-for="Nombres" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Apellidos" class="form-label fw-semibold color2">Apellidos *</label>
+                            <input asp-for="Apellidos" class="form-control" placeholder="García López" required>
+                            <span asp-validation-for="Apellidos" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="DNI" class="form-label fw-semibold color2">DNI *</label>
+                            <input asp-for="DNI" class="form-control" placeholder="12345678" required maxlength="8">
+                            <span asp-validation-for="DNI" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Telefono" class="form-label fw-semibold color2">Teléfono</label>
+                            <input asp-for="Telefono" class="form-control" placeholder="987654321">
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Correo" class="form-label fw-semibold color2">Correo *</label>
+                            <input asp-for="Correo" type="email" class="form-control" placeholder="correo@ejemplo.com" required>
+                            <span asp-validation-for="Correo" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Direccion" class="form-label fw-semibold color2">Dirección</label>
+                        <input asp-for="Direccion" class="form-control" placeholder="Calle Principal 123">
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Configuración de Cuenta -->
+                    <h5 class="color1 mb-3">
+                        <i class="fas fa-lock color2"></i> Configuración de Cuenta
+                    </h5>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="IdRol" class="form-label fw-semibold color2">Rol *</label>
+                            <select asp-for="IdRol" class="form-select" required>
+                                <option value="">-- Seleccione --</option>
+                                @foreach (var rol in ViewBag.Roles as List<SistemaBiblioteca.Models.Rol>)
+                                {
+                                    <option value="@rol.IdRol">@rol.NombreRol</option>
+                                }
+                            </select>
+                            <span asp-validation-for="IdRol" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold color2">Estado</label>
+                            <div class="form-check mt-2">
+                                <input type="checkbox" class="form-check-input" id="activo" checked disabled>
+                                <label class="form-check-label color1" for="activo">
+                                    Usuario Activo (por defecto)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Contraseña -->
+                    <h5 class="color1 mb-3">
+                        <i class="fas fa-key color2"></i> Contraseña Inicial
+                    </h5>
+
+                    <div class="alert alert-info border-0" style="background: linear-gradient(135deg, rgba(8,137,255,0.1) 0%, rgba(8,207,255,0.1) 100%); border-left: 4px solid var(--color-2);">
+                        <i class="fas fa-info-circle color2"></i> La contraseña debe tener mínimo 6 caracteres. El usuario podrá cambiarla después.
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold color2">Contraseña *</label>
+                            <input name="contrasena" type="password" class="form-control" placeholder="••••••••" required>
+                            <small class="text-muted">Mínimo 6 caracteres</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold color2">Confirmar Contraseña *</label>
+                            <input name="confirmarContrasena" type="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Crear Usuario
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+            // Validar que las contraseñas coincidan
+            document.querySelector('form').addEventListener('submit', function (e) {
+               const contrasena = document.querySelector('input[name="contrasena"]').value;
+            const confirmar = document.querySelector('input[name="confirmarContrasena"]').value;
+
+         // Si hay contraseña pero no la otra
+             if ((contrasena && !confirmar) || (!contrasena && confirmar)) {
+               e.preventDefault();
+               alert('Debes ingresar ambas contraseñas');
+           return false;
+         }
+
+           // Validar que coincidan
+           if (contrasena !== confirmar) {
+            e.preventDefault();
+               alert('Las contraseñas no coinciden');
+             document.querySelector('input[name="confirmarContrasena"]').focus();
+        }
+               });
+    </script>
+}

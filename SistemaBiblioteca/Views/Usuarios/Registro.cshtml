@@ -1,0 +1,219 @@
+﻿@model SistemaBiblioteca.Models.ViewModels.RegistroViewModel
+
+@{
+    ViewData["Title"] = "Registro de Usuario";
+}
+
+<div class="row justify-content-center mt-4 mb-5">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-gradient text-white text-center py-4" style="background: linear-gradient(135deg, var(--color-1) 0%, var(--color-2) 100%);">
+                <h2 class="mb-0">
+                    <i class="fas fa-user-plus"></i> Crear Nueva Cuenta
+                </h2>
+                <p class="mb-0 mt-2">Completa el formulario para registrarte</p>
+            </div>
+            <div class="card-body p-5">
+                <form asp-action="Registro" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <!-- Información Personal -->
+                    <h5 class="color1 mb-3">
+                        <i class="fas fa-user color2"></i> Información Personal
+                    </h5>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Nombres" class="form-label fw-semibold color2">Nombres *</label>
+                            <input asp-for="Nombres" class="form-control" placeholder="Ej: Juan Carlos">
+                            <span asp-validation-for="Nombres" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Apellidos" class="form-label fw-semibold color2">Apellidos *</label>
+                            <input asp-for="Apellidos" class="form-control" placeholder="Ej: García López">
+                            <span asp-validation-for="Apellidos" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="DNI" class="form-label fw-semibold color2">DNI *</label>
+                            <input asp-for="DNI" class="form-control" placeholder="12345678" maxlength="8">
+                            <span asp-validation-for="DNI" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Telefono" class="form-label fw-semibold color2">Teléfono</label>
+                            <input asp-for="Telefono" class="form-control" placeholder="987654321">
+                            <span asp-validation-for="Telefono" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Direccion" class="form-label fw-semibold color2">Dirección</label>
+                        <input asp-for="Direccion" class="form-control" placeholder="Av. Principal 123">
+                        <span asp-validation-for="Direccion" class="text-danger"></span>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Información de Cuenta -->
+                    <h5 class="color1 mb-3">
+                        <i class="fas fa-key color2"></i> Información de Cuenta
+                    </h5>
+
+                    <div class="mb-3">
+                        <label asp-for="IdRol" class="form-label fw-semibold color2">Tipo de Usuario *</label>
+                        <select asp-for="IdRol" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            @foreach (var rol in ViewBag.Roles as List<SistemaBiblioteca.Models.Rol>)
+                            {
+                                <option value="@rol.IdRol">@rol.NombreRol</option>
+                            }
+                        </select>
+                        <span asp-validation-for="IdRol" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Correo" class="form-label fw-semibold color2">Correo Electrónico *</label>
+                        <input asp-for="Correo" class="form-control" type="email"
+                               placeholder="correo@ejemplo.com">
+                        <span asp-validation-for="Correo" class="text-danger"></span>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle"></i>
+                            Este correo será usado para iniciar sesión
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Contrasena" class="form-label fw-semibold color2">Contraseña *</label>
+                            <div class="input-group">
+                                <input asp-for="Contrasena" class="form-control" type="password"
+                                       id="password" placeholder="••••••••">
+                                <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePasswordReg('password', 'icon1')">
+                                    <i class="fas fa-eye" id="icon1"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Contrasena" class="text-danger"></span>
+                            <div class="form-text">Mínimo 6 caracteres</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold color2">Confirmar Contraseña *</label>
+                            <div class="input-group">
+                                <input name="confirmarContrasena" class="form-control" type="password"
+                                       id="confirmar" placeholder="••••••••" required>
+                                <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePasswordReg('confirmar', 'icon2')">
+                                    <i class="fas fa-eye" id="icon2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="terminos" required>
+                            <label class="form-check-label" for="terminos">
+                                Acepto los <a href="#">términos y condiciones</a>
+                                y la <a href="#">política de privacidad</a>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-check"></i> Crear Cuenta
+                        </button>
+                        <a asp-action="Login" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver al Login
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function togglePasswordReg(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Validar que las contraseñas coincidan
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmar').value;
+
+            if (pass !== confirm) {
+                e.preventDefault();
+                alert('Las contraseñas no coinciden');
+                document.getElementById('confirmar').focus();
+            }
+        });
+    </script>
+
+
+<style>
+    .bg-gradient {
+        background: linear-gradient(135deg, #131929 0%, #0d456b 100%);
+    }
+</style>
+
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function togglePasswordReg(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Validar que las contraseñas coincidan
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmar').value;
+
+            if (pass !== confirm) {
+                e.preventDefault();
+                alert('Las contraseñas no coinciden');
+                document.getElementById('confirmar').focus();
+            }
+        });
+    </script>
+}
+
+<style>
+    .bg-gradient {
+        background: linear-gradient(135deg, #131929 0%, #0d456b 100%);
+    }
+</style>

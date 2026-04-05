@@ -1,0 +1,125 @@
+﻿@model IEnumerable<SistemaBiblioteca.Models.Libro>
+
+@{
+    ViewData["Title"] = "Gestión de Libros";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+ <h2 class="fw-bold color1">
+      <i class="fas fa-book color2"></i> Gestión de Libros
+    </h2>
+        <p class="color2">Administra el catálogo de libros disponibles</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Create" class="btn btn-primary">
+ <i class="fas fa-plus"></i> Nuevo Libro
+        </a>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4 border-0 shadow-sm">
+<div class="card-body">
+        <form method="get" class="row g-3">
+          <div class="col-md-6">
+      <label class="form-label fw-semibold color2">Buscar</label>
+      <input type="text" name="buscar" class="form-control"
+placeholder="Buscar por título, autor o ISBN...">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label fw-semibold color2">Categoría</label>
+        <select name="categoria" class="form-select">
+        <option value="">Todas las categorías</option>
+  @foreach (var cat in ViewBag.Categorias as List<SistemaBiblioteca.Models.Categoria>)
+    {
+ <option value="@cat.IdCategoria">@cat.NombreCategoria</option>
+      }
+  </select>
+         </div>
+       <div class="col-md-2">
+     <button type="submit" class="btn btn-primary w-100">
+    <i class="fas fa-search"></i> Buscar
+    </button>
+      </div>
+    </form>
+    </div>
+</div>
+
+<!-- Tabla -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+  <div class="table-responsive">
+         <table class="table table-hover">
+      <thead class="bg-color2 text-white">
+     <tr>
+ <th>ID</th>
+         <th>Portada</th>
+               <th>Título</th>
+  <th>Autor</th>
+           <th>ISBN</th>
+        <th>Categoría</th>
+      <th>Ejemplares</th>
+              <th>Acciones</th>
+         </tr>
+  </thead>
+      <tbody>
+        @foreach (var libro in Model)
+         {
+     <tr>
+                  <td>@libro.IdLibro</td>
+          <td>
+    <img src="@(libro.ImagenPortada ?? "/images/libro-default.jpg")"
+   style="width: 50px; height: 70px; object-fit: cover;"
+     class="rounded">
+       </td>
+    <td><strong class="color1">@libro.Titulo</strong></td>
+        <td class="color2">@libro.Autor</td>
+   <td><code>@libro.ISBN</code></td>
+       <td><span class="badge bg-color3">@(libro.Categoria?.NombreCategoria ?? "N/A")</span></td>
+        <td>
+     <span class="badge bg-success">@libro.EjemplaresDisponibles</span> /
+            <span class="badge bg-secondary">@libro.TotalEjemplares</span>
+     </td>
+     <td>
+       <div class="btn-group btn-group-sm">
+        <a asp-action="Edit" asp-route-id="@libro.IdLibro"
+  class="btn btn-warning">
+     <i class="fas fa-edit"></i>
+       </a>
+          <button onclick="eliminarLibro(@libro.IdLibro)"
+        class="btn btn-danger">
+                <i class="fas fa-trash"></i>
+       </button>
+          </div>
+           </td>
+                </tr>
+         }
+         </tbody>
+   </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function eliminarLibro(id) {
+            if (confirm('¿Está seguro de eliminar este libro?')) {
+                $.ajax({
+                    url: '@Url.Action("Delete")/' + id,
+                    type: 'POST',
+                    data: { __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+    @Html.AntiForgeryToken()
+}

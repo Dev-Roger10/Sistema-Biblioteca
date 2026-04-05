@@ -1,0 +1,177 @@
+@{
+    ViewData["Title"] = "Reportes del Sistema";
+}
+
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h2 class="fw-bold color1">
+     <i class="fas fa-chart-bar color2"></i> Centro de Reportes
+   </h2>
+        <p class="color2">Genera reportes y exporta datos del sistema</p>
+    </div>
+</div>
+
+<!-- Tarjetas de Reportes -->
+<div class="row g-4">
+    <!-- Reporte 1: Sanciones por Usuario -->
+    <div class="col-md-6 col-lg-4">
+   <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #FF6B6B;">
+            <div class="card-body">
+          <div class="d-flex align-items-start mb-3">
+  <div class="flex-grow-1">
+     <h5 class="card-title fw-bold color1">
+      <i class="fas fa-user-injured color2"></i> Sanciones Pendientes
+           </h5>
+        </div>
+   </div>
+            <p class="card-text text-muted small">
+  Reporte de todos los usuarios con sanciones pendientes de pago, incluyendo detalles de la sanción y montos adeudados.
+      </p>
+  <div class="d-flex gap-2">
+   <a asp-action="SancionesPorUsuario" class="btn btn-sm btn-outline-primary flex-fill">
+    <i class="fas fa-eye"></i> Ver Reporte
+          </a>
+      <a asp-action="DescargarReporteSanciones" asp-route-formato="excel" class="btn btn-sm btn-outline-success flex-fill">
+            <i class="fas fa-download"></i> Excel
+         </a>
+              </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Reporte 2: Préstamos Vencidos -->
+ <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #FFE066;">
+       <div class="card-body">
+    <div class="d-flex align-items-start mb-3">
+     <div class="flex-grow-1">
+              <h5 class="card-title fw-bold color1">
+        <i class="fas fa-calendar-times color2"></i> Préstamos Vencidos
+            </h5>
+              </div>
+ </div>
+      <p class="card-text text-muted small">
+  Listado de préstamos que han excedido su fecha de devolución esperada, con información del usuario y libro.
+         </p>
+    <div class="d-flex gap-2">
+           <button class="btn btn-sm btn-outline-primary flex-fill" disabled>
+              <i class="fas fa-eye"></i> Próximamente
+          </button>
+      <button class="btn btn-sm btn-outline-success flex-fill" disabled>
+      <i class="fas fa-download"></i> Excel
+    </button>
+ </div>
+      </div>
+        </div>
+    </div>
+
+    <!-- Reporte 3: Actividad de Usuarios -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #95DEE3;">
+<div class="card-body">
+       <div class="d-flex align-items-start mb-3">
+          <div class="flex-grow-1">
+  <h5 class="card-title fw-bold color1">
+ <i class="fas fa-history color2"></i> Historial de Acciones
+       </h5>
+         </div>
+         </div>
+        <p class="card-text text-muted small">
+   Registro completo de todas las acciones realizadas en el sistema por usuarios, incluyendo fechas y detalles.
+      </p>
+ <div class="d-flex gap-2">
+       <button class="btn btn-sm btn-outline-primary flex-fill" disabled>
+             <i class="fas fa-eye"></i> Próximamente
+        </button>
+      <button class="btn btn-sm btn-outline-success flex-fill" disabled>
+     <i class="fas fa-download"></i> Excel
+          </button>
+       </div>
+       </div>
+        </div>
+    </div>
+
+    <!-- Reporte 4: Disponibilidad de Libros -->
+    <div class="col-md-6 col-lg-4">
+   <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #4ECDC4;">
+      <div class="card-body">
+         <div class="d-flex align-items-start mb-3">
+      <div class="flex-grow-1">
+          <h5 class="card-title fw-bold color1">
+     <i class="fas fa-book color2"></i> Disponibilidad de Libros
+            </h5>
+        </div>
+   </div>
+       <p class="card-text text-muted small">
+        Reporte sobre el inventario de libros, mostrando disponibilidad, libros prestados y en mantenimiento.
+         </p>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-primary flex-fill" disabled>
+      <i class="fas fa-eye"></i> Próximamente
+      </button>
+ <button class="btn btn-sm btn-outline-success flex-fill" disabled>
+    <i class="fas fa-download"></i> Excel
+    </button>
+     </div>
+      </div>
+        </div>
+    </div>
+
+    <!-- Reporte 5: Estadísticas Generales -->
+    <div class="col-md-6 col-lg-4">
+ <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #95E1D3;">
+   <div class="card-body">
+         <div class="d-flex align-items-start mb-3">
+   <div class="flex-grow-1">
+     <h5 class="card-title fw-bold color1">
+             <i class="fas fa-chart-pie color2"></i> Estadísticas Generales
+   </h5>
+        </div>
+            </div>
+      <p class="card-text text-muted small">
+      Resumen estadístico del sistema: usuarios, libros, préstamos activos, reservas y sanciones.
+       </p>
+            <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-primary flex-fill" disabled>
+<i class="fas fa-eye"></i> Próximamente
+    </button>
+       <button class="btn btn-sm btn-outline-success flex-fill" disabled>
+    <i class="fas fa-download"></i> Excel
+            </button>
+   </div>
+      </div>
+        </div>
+    </div>
+
+    <!-- Reporte 6: Top 10 Libros Más Prestados -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #F38181;">
+   <div class="card-body">
+           <div class="d-flex align-items-start mb-3">
+  <div class="flex-grow-1">
+        <h5 class="card-title fw-bold color1">
+        <i class="fas fa-star color2"></i> Top 10 Libros
+</h5>
+         </div>
+  </div>
+           <p class="card-text text-muted small">
+       Los 10 libros más solicitados en préstamo, mostrando tendencias de lectura y popularidad.
+         </p>
+      <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-primary flex-fill" disabled>
+  <i class="fas fa-eye"></i> Próximamente
+   </button>
+  <button class="btn btn-sm btn-outline-success flex-fill" disabled>
+<i class="fas fa-download"></i> Excel
+     </button>
+             </div>
+ </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información adicional -->
+<div class="alert alert-info border-0 shadow-sm mt-4" style="background: linear-gradient(135deg, rgba(8,137,255,0.1) 0%, rgba(8,207,255,0.1) 100%); border-left: 4px solid var(--color-2);">
+    <i class="fas fa-info-circle color2"></i>
+    <strong>Nota:</strong> Los reportes se pueden descargar en formato Excel o CSV. Los datos se actualizan en tiempo real desde la base de datos del sistema.
+</div>

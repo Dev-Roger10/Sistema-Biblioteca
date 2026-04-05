@@ -1,0 +1,55 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #0883bc;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* Color Palette Classes */
+.color1 { color: #131929; }
+.color2 { color: #0d456b; }
+.color3 { color: #0883bc; }
+.color4 { color: #08cdff; }
+.color5 { color: #0ffff8; }
+
+.bg-color1 { background-color: #131929; }
+.bg-color2 { background-color: #0d456b; }
+.bg-color3 { background-color: #0883bc; }
+.bg-color4 { background-color: #08cdff; }
+.bg-color5 { background-color: #0ffff8; }
+
+.border-color1 { border-color: #131929; }
+.border-color2 { border-color: #0d456b; }
+.border-color3 { border-color: #0883bc; }
+.border-color4 { border-color: #08cdff; }
+.border-color5 { border-color: #0ffff8; }
+
+.gradient-primary {
+  background: linear-gradient(135deg, #131929 0%, #0d456b 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, #0883bc 0%, #08cdff 100%);
+}
+
+.text-color1 { color: #131929; }
+.text-color2 { color: #0d456b; }
+.text-color3 { color: #0883bc; }
+.text-color4 { color: #08cdff; }
+.text-color5 { color: #0ffff8; }

@@ -1,0 +1,101 @@
+﻿@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-circle fa-5x color2 mb-3"></i>
+                    <h2 class="fw-bold color1">Iniciar Sesión</h2>
+                    <p class="color2">Ingresa tus credenciales</p>
+                </div>
+
+                <form asp-action="Login" method="post">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold color2">
+                            <i class="fas fa-envelope color2"></i> Correo Electrónico
+                        </label>
+                        <input type="email" name="correo" class="form-control form-control-lg"
+                               placeholder="ejemplo@correo.com" required autofocus>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold color2">
+                            <i class="fas fa-lock color2"></i> Contraseña
+                        </label>
+                        <div class="input-group">
+                            <input type="password" name="contrasena" id="password"
+                                   class="form-control form-control-lg"
+                                   placeholder="••••••••" required>
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword()">
+                                <i class="fas fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="recordar">
+                            <label class="form-check-label color1" for="recordar">
+                                Recordarme
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Ingresar
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="#" class="text-decoration-none color2">¿Olvidaste tu contraseña?</a>
+                    </div>
+                </form>
+
+                <hr class="my-4" style="border-color: var(--color-3);">
+
+                <div class="text-center">
+                    <p class="mb-2 color2">¿No tienes cuenta?</p>
+                    <a asp-action="Registro" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus"></i> Crear Cuenta
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info adicional
+           <div class="card mt-3 border-0 bg-color3">
+         <div class="card-body text-center">
+          <small class="color1">
+            <i class="fas fa-info-circle"></i>
+           Usuario de prueba: <strong>admin@biblioteca.edu</strong> /
+           Contraseña: <strong>Admin123</strong>
+               </small>
+            </div>
+        </div>
+            </div>
+                </div>-->
+@section Scripts {
+            <script>
+                function togglePassword() {
+                    const password = document.getElementById('password');
+                    const icon = document.getElementById('toggleIcon');
+
+                    if (password.type === 'password') {
+                        password.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        password.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                }
+            </script>
+}
+
+

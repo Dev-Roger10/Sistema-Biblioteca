@@ -1,0 +1,507 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SIGB</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom Colors CSS -->
+    <link rel="stylesheet" href="~/css/colors.css">
+    <!-- Site CSS -->
+    <link rel="stylesheet" href="~/css/site.css">
+
+    <style>
+        :root {
+            --color1: #007f90;
+            --color2: #0d456b;
+            --color3: #0883bc;
+            --color4: #08cdff;
+            --color5: #0ffff8;
+            --primary-color: var(--color3);
+            --secondary-color: var(--color2);
+            --dark-color: var(--color1);
+            --light-color: var(--color5);
+            --danger-color: #EF4444;
+            --warning-color: #F59E0B;
+            --accent-color: var(--color4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: white;
+            color: var(--color1);
+        }
+
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, var(--color1) 0%, var(--color2) 100%);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .navbar-brand i {
+                font-size: 1.8rem;
+            }
+
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+            .nav-link:hover {
+                background-color: var(--color3);
+                color: white !important;
+            }
+
+            .nav-link.active {
+                background-color: var(--color3);
+                color: white !important;
+            }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+
+        .dropdown-item {
+            padding: 0.7rem 1.2rem;
+            transition: all 0.2s;
+        }
+
+            .dropdown-item:hover {
+                background-color: var(--color4);
+                color: var(--color1);
+            }
+
+        /* Main Content */
+        .main-content {
+            min-height: calc(100vh - 200px);
+            padding: 2rem 0;
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+
+            .card:hover {
+                box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+                transform: translateY(-2px);
+            }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 1.2rem 1.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color3) 0%, var(--color4) 100%);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(8, 131, 188, 0.4);
+            }
+
+        .btn-success {
+            background-color: var(--color3);
+        }
+
+            .btn-success:hover {
+                background-color: var(--color2);
+            }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+        }
+
+        /* Alerts */
+        .alert {
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--color1);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        /* Stats Card */
+        .stats-card {
+            border-left: 4px solid var(--color3);
+        }
+
+            .stats-card.success {
+                border-left-color: var(--color3);
+            }
+
+            .stats-card.danger {
+                border-left-color: var(--danger-color);
+            }
+
+            .stats-card.warning {
+                border-left-color: var(--warning-color);
+            }
+
+        .stats-icon {
+            font-size: 2.5rem;
+            opacity: 0.2;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Table */
+        .table {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+            .table thead {
+                background: linear-gradient(135deg, var(--color1) 0%, var(--color2) 100%);
+                color: white;
+            }
+
+            .table tbody tr:hover {
+                background-color: var(--color5);
+            }
+
+        /* Badge */
+        .badge {
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+        }
+
+        /* Loading Spinner */
+        .spinner-border-custom {
+            width: 1.2rem;
+            height: 1.2rem;
+            border-width: 0.15em;
+        }
+
+        /* Color Classes */
+        .color1 {
+            color: var(--color1);
+        }
+
+        .color2 {
+            color: var(--color2);
+        }
+
+        .color3 {
+            color: var(--color3);
+        }
+
+        .color4 {
+            color: var(--color4);
+        }
+
+        .color5 {
+            color: var(--color5);
+        }
+
+        .bg-color1 {
+            background-color: var(--color1);
+        }
+
+        .bg-color2 {
+            background-color: var(--color2);
+        }
+
+        .bg-color3 {
+            background-color: var(--color3);
+        }
+
+        .bg-color4 {
+            background-color: var(--color4);
+        }
+
+        .bg-color5 {
+            background-color: var(--color5);
+        }
+
+        .border-color1 {
+            border-color: var(--color1);
+        }
+
+        .border-color2 {
+            border-color: var(--color2);
+        }
+
+        .border-color3 {
+            border-color: var(--color3);
+        }
+
+        .border-color4 {
+            border-color: var(--color4);
+        }
+
+        .border-color5 {
+            border-color: var(--color5);
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                <i class="fas fa-book-reader"></i>
+                SIGB
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    @if (HttpContextAccessor.HttpContext.Session.GetInt32("UsuarioId") != null)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home"></i> Inicio
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Libros" asp-action="Catalogo">
+                                <i class="fas fa-book"></i> Catálogo
+                            </a>
+                        </li>
+
+                        @if (HttpContextAccessor.HttpContext.Session.GetString("UsuarioRol") == "Estudiante" ||
+                                            HttpContextAccessor.HttpContext.Session.GetString("UsuarioRol") == "Docente")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Reservas" asp-action="MisReservas">
+                                    <i class="fas fa-bookmark"></i> Mis Reservas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Prestamos" asp-action="MisPrestamos">
+                                    <i class="fas fa-hand-holding-medical"></i> Mis Préstamos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Sanciones" asp-action="MisSanciones">
+                                    <i class="fas fa-exclamation-circle"></i> Mis Sanciones
+                                </a>
+                            </li>
+                        }
+
+                        @if (HttpContextAccessor.HttpContext.Session.GetString("UsuarioRol") == "Bibliotecario" ||
+                                            HttpContextAccessor.HttpContext.Session.GetString("UsuarioRol") == "Administrador")
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="gestionDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-tasks"></i> Gestión
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Libros" asp-action="Index"><i class="fas fa-book"></i> Libros</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Prestamos" asp-action="Index"><i class="fas fa-exchange-alt"></i> Préstamos</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Reservas" asp-action="Index"><i class="fas fa-bookmark"></i> Reservas</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Sanciones" asp-action="Index"><i class="fas fa-gavel"></i> Sanciones</a></li>
+                                </ul>
+                            </li>
+                        }
+
+                        @if (HttpContextAccessor.HttpContext.Session.GetString("UsuarioRol") == "Administrador")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Usuarios" asp-action="Index">
+                                    <i class="fas fa-users"></i> Usuarios
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Reportes" asp-action="Index">
+                                    <i class="fas fa-chart-bar"></i> Reportes
+                                </a>
+                            </li>
+                        }
+                    }
+                </ul>
+
+                <ul class="navbar-nav">
+                    @if (HttpContextAccessor.HttpContext.Session.GetInt32("UsuarioId") != null)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i> @HttpContextAccessor.HttpContext.Session.GetString("UsuarioNombre")
+                                @if (ViewBag.NotificacionesNoLeidas > 0)
+                                {
+                                    <span class="badge bg-danger">@ViewBag.NotificacionesNoLeidas</span>
+                                }
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Usuarios" asp-action="Perfil">
+                                        <i class="fas fa-user"></i> Mi Perfil
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Usuarios" asp-action="Notificaciones">
+                                        <i class="fas fa-bell"></i> Notificaciones
+                                        @if (ViewBag.NotificacionesNoLeidas > 0)
+                                        {
+                                            <span class="badge bg-danger">@ViewBag.NotificacionesNoLeidas</span>
+                                        }
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" asp-controller="Usuarios" asp-action="Logout">
+                                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Usuarios" asp-action="Login">
+                                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Usuarios" asp-action="Registro">
+                                <i class="fas fa-user-plus"></i> Registrarse
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Alerts -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Warning"] != null)
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @TempData["Warning"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @RenderBody()
+        </div>
+    </div>
+
+    <!-- Footer -->
+    @if (HttpContextAccessor.HttpContext.Session.GetInt32("UsuarioId") == null)
+    {
+        <footer class="text-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <h5><i class="fas fa-book-reader"></i> SIGB</h5>
+                        <p class="text-muted">Sistema Integral de Gestión de Biblioteca</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <h6>Enlaces Rápidos</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="#" class="text-white-50">Acerca de</a></li>
+                            <li><a href="#" class="text-white-50">Contacto</a></li>
+                            <li><a href="#" class="text-white-50">Ayuda</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <h6>Síguenos</h6>
+                        <div>
+                            <a href="#" class="text-white-50 me-3"><i class="fab fa-facebook fa-2x"></i></a>
+                            <a href="#" class="text-white-50 me-3"><i class="fab fa-twitter fa-2x"></i></a>
+                            <a href="#" class="text-white-50"><i class="fab fa-instagram fa-2x"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="bg-white">
+                <p class="text-muted mb-0">© 2025 SIGB - Todos los derechos reservados</p>
+            </div>
+        </footer>
+    }
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

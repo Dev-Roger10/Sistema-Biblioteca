@@ -1,0 +1,138 @@
+﻿@{
+    ViewData["Title"] = "Nuevo Libro";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-book-medical"></i> Registrar Nuevo Libro
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+                    
+                    <h5 class="text-primary mb-3">
+                        <i class="fas fa-info-circle"></i> Información del Libro
+                    </h5>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">Título *</label>
+                            <input type="text" name="Titulo" class="form-control" placeholder="Ej: Cien años de soledad" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">ISBN</label>
+                            <input type="text" name="ISBN" class="form-control" placeholder="978-3-16-148410-0">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Autor *</label>
+                            <input type="text" name="Autor" class="form-control" placeholder="Ej: Gabriel García Márquez" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Categoría</label>
+                            <select name="IdCategoria" class="form-select">
+                                <option value="0">-- Seleccione --</option>
+                                @foreach (var cat in ViewBag.Categorias as List<SistemaBiblioteca.Models.Categoria> ?? new List<SistemaBiblioteca.Models.Categoria>())
+                                {
+                                    <option value="@cat.IdCategoria">@cat.NombreCategoria</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Editorial</label>
+                            <select name="IdEditorial" class="form-select">
+                                <option value="0">-- Seleccione --</option>
+                                @foreach (var ed in ViewBag.Editoriales as List<SistemaBiblioteca.Models.Editorial> ?? new List<SistemaBiblioteca.Models.Editorial>())
+                                {
+                                    <option value="@ed.IdEditorial">@ed.NombreEditorial</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Año de Publicación</label>
+                            <input type="number" name="AñoPublicacion" class="form-control" 
+                                   min="1800" max="2100" placeholder="2024">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Número de Páginas</label>
+                            <input type="number" name="NumPaginas" class="form-control" min="1" placeholder="350">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Idioma</label>
+                            <input type="text" name="Idioma" class="form-control" placeholder="Español" value="Español">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        <textarea name="Descripcion" class="form-control" rows="4" 
+                                  placeholder="Breve descripción del libro..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">URL de la Portada</label>
+                        <input type="text" name="ImagenPortada" class="form-control" 
+                               placeholder="https://ejemplo.com/portada.jpg">
+                        <div class="form-text">
+                            <i class="fas fa-info-circle"></i> 
+                            Opcional: URL de la imagen de portada del libro
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5 class="text-primary mb-3">
+                        <i class="fas fa-copy"></i> Ejemplares Físicos
+                    </h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Cantidad de Ejemplares *</label>
+                            <input type="number" name="cantidadEjemplares" class="form-control" 
+                                   min="1" max="100" value="1" required>
+                            <div class="form-text">
+                                Número de copias físicas disponibles
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Sede de Almacenamiento *</label>
+                            <select name="idSede" class="form-select" required>
+                                <option value="">-- Seleccione una sede --</option>
+                                @{
+                                    var sedes = ViewBag.Sedes as List<SistemaBiblioteca.Models.Sede> ?? new List<SistemaBiblioteca.Models.Sede>();
+                                }
+                                @foreach (var sede in sedes)
+                                {
+                                    <option value="@sede.IdSede">@sede.NombreSede</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Los códigos de ejemplares se generarán automáticamente
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Guardar Libro y Crear Ejemplares
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

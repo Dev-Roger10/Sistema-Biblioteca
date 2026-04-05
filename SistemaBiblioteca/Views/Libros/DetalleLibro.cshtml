@@ -1,0 +1,172 @@
+﻿@model SistemaBiblioteca.Models.Libro
+
+@{
+    ViewData["Title"] = Model.Titulo;
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a asp-action="Catalogo" class="color2">Catálogo</a></li>
+<li class="breadcrumb-item active color1">@Model.Titulo</li>
+    </ol>
+</nav>
+
+<div class="row mb-5">
+    <!-- Imagen del Libro -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow">
+  <img src="@(Model.ImagenPortada ?? "/images/libro-default.jpg")"
+    class="card-img-top" style="height: 500px; object-fit: cover;"
+     alt="@Model.Titulo">
+   <div class="card-body text-center">
+     @if (ViewBag.EjemplaresDisponibles > 0)
+    {
+   <span class="badge bg-success fs-6 mb-3">
+     <i class="fas fa-check-circle"></i>
+        @ViewBag.EjemplaresDisponibles Disponibles
+      </span>
+
+    @if (Context.Session.GetInt32("UsuarioId") != null)
+     {
+        @if (ViewBag.YaReservo == true)
+       {
+      <div class="alert alert-info border-0" style="background: linear-gradient(135deg, rgba(8,207,255,0.2) 0%, rgba(14,255,249,0.2) 100%); border-left: 4px solid var(--color-2);">
+ <i class="fas fa-info-circle color2"></i> <span class="color1">Ya tienes una reserva de este libro</span>
+</div>
+   }
+    else if (ViewBag.PuedeReservar == true)
+     {
+        <form asp-controller="Reservas" asp-action="Create" method="post">
+ <input type="hidden" name="idLibro" value="@Model.IdLibro" />
+  <div class="mb-3">
+    <label class="form-label fw-semibold color2">Tipo de Reserva</label>
+    <select name="tipoReserva" class="form-select" required>
+ <option value="Local">Local (Recoger en biblioteca)</option>
+        <option value="Virtual">Virtual (Consulta online)</option>
+      </select>
+       </div>
+    <button type="submit" class="btn btn-success btn-lg w-100">
+    <i class="fas fa-bookmark"></i> Reservar Libro
+      </button>
+         </form>
+   }
+        else
+         {
+ <div class="alert alert-warning border-0" style="background: linear-gradient(135deg, rgba(14,255,249,0.2) 0%, rgba(73,255,248,0.2) 100%); border-left: 4px solid var(--color-3);">
+           <i class="fas fa-exclamation-triangle"></i>
+     <span class="color1">Has alcanzado el límite de @ViewBag.LimiteReservas reservas</span>
+   </div>
+       }
+  }
+  else
+        {
+    <a asp-controller="Usuarios" asp-action="Login" class="btn btn-primary btn-lg w-100">
+     <i class="fas fa-sign-in-alt"></i> Iniciar Sesión para Reservar
+      </a>
+     }
+   }
+     else
+    {
+    <span class="badge bg-danger fs-6">
+  <i class="fas fa-times-circle"></i> No Disponible
+        </span>
+    }
+   </div>
+    </div>
+</div>
+
+    <!-- Información del Libro -->
+    <div class="col-md-8">
+ <div class="card border-0 shadow">
+   <div class="card-body p-4">
+   <h1 class="display-5 fw-bold color1 mb-3">@Model.Titulo</h1>
+
+         <div class="mb-4">
+         <span class="badge bg-color2 fs-6">
+ @(Model.Categoria?.NombreCategoria ?? "Sin categoría")
+     </span>
+          </div>
+
+    <div class="row mb-4">
+         <div class="col-md-6">
+   <p class="mb-2">
+      <strong><i class="fas fa-user" style="color: var(--color-2);"></i> Autor:</strong>
+      <br><span class="color1">@Model.Autor</span>
+    </p>
+           <p class="mb-2">
+      <strong><i class="fas fa-building" style="color: var(--color-2);"></i> Editorial:</strong>
+      <br><span class="color1">@(Model.Editorial?.NombreEditorial ?? "N/A")</span>
+              </p>
+   <p class="mb-2">
+    <strong><i class="fas fa-barcode" style="color: var(--color-2);"></i> ISBN:</strong>
+     <br><code class="color1">@(Model.ISBN ?? "N/A")</code>
+          </p>
+       </div>
+         <div class="col-md-6">
+     <p class="mb-2">
+      <strong><i class="fas fa-calendar" style="color: var(--color-2);"></i> Año:</strong>
+    <br><span class="color1">@(Model.AñoPublicacion ?? 0)</span>
+   </p>
+           <p class="mb-2">
+  <strong><i class="fas fa-file-alt" style="color: var(--color-2);"></i> Páginas:</strong>
+        <br><span class="color1">@(Model.NumPaginas ?? 0)</span>
+    </p>
+   <p class="mb-2">
+    <strong><i class="fas fa-language" style="color: var(--color-2);"></i> Idioma:</strong>
+        <br><span class="color1">@(Model.Idioma ?? "N/A")</span>
+           </p>
+       </div>
+          </div>
+
+    <hr>
+
+    <h5 class="fw-bold color1 mb-3">
+            <i class="fas fa-align-left color2"></i> Descripción
+        </h5>
+ <p class="color2" style="text-align: justify;">
+  @(Model.Descripcion ?? "Sin descripción disponible.")
+    </p>
+
+         <hr>
+
+         <h5 class="fw-bold color1 mb-3">
+                    <i class="fas fa-copy color2"></i> Ejemplares Disponibles
+       </h5>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Sede</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ejemplar in Model.Ejemplares)
+                            {
+                                <tr>
+                                    <td><code>@ejemplar.CodigoEjemplar</code></td>
+                                    <td>@ejemplar.Sede.NombreSede</td>
+                                    <td>
+                                        @if (ejemplar.Estado == "Disponible")
+                                        {
+                                            <span class="badge bg-success">Disponible</span>
+                                        }
+                                        else if (ejemplar.Estado == "Prestado")
+                                        {
+                                            <span class="badge bg-warning">Prestado</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@ejemplar.Estado</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

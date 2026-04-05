@@ -1,0 +1,119 @@
+﻿@model IEnumerable<SistemaBiblioteca.Models.Prestamo>
+
+@{
+    ViewData["Title"] = "Mis Préstamos";
+}
+
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h2 class="fw-bold color1">
+            <i class="fas fa-book-reader color2"></i> Mis Préstamos
+        </h2>
+        <p class="color2">Historial y estado de tus libros prestados</p>
+    </div>
+</div>
+
+<!-- Resumen -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow border-start border-success border-4">
+            <div class="card-body text-center">
+                <i class="fas fa-book fa-2x mb-2" style="color: var(--color-2);"></i>
+                <h3 class="fw-bold color1">@ViewBag.PrestamosActivos</h3>
+                <p class="mb-0 color2">Préstamos Activos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card border-0 shadow border-start border-danger border-4">
+            <div class="card-body text-center">
+                <i class="fas fa-exclamation-triangle fa-2x mb-2 text-danger"></i>
+                <h3 class="fw-bold color1">@ViewBag.PrestamosVencidos</h3>
+                <p class="mb-0 color2">Préstamos Vencidos</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Préstamos -->
+<div class="row g-4">
+    @foreach (var prestamo in Model)
+    {
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100 @(prestamo.EstaVencido && prestamo.EstadoPrestamo == "Activo" ? "border-danger border-2" : "")">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <img src="@(prestamo.Ejemplar.Libro.ImagenPortada ?? "/images/libro-default.jpg")"
+                             class="rounded me-3" style="width: 80px; height: 110px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title fw-bold color1">@prestamo.Ejemplar.Libro.Titulo</h5>
+                            <p class="card-text color2 mb-2">
+                                <i class="fas fa-user"></i> @prestamo.Ejemplar.Libro.Autor
+                            </p>
+                            <p class="card-text">
+                                <small class="color2">
+                                    <i class="fas fa-barcode"></i>
+                                    Código: @prestamo.Ejemplar.CodigoEjemplar
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Fecha Préstamo</small>
+                            <strong>@prestamo.FechaPrestamo.ToString("dd/MM/yyyy")</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Fecha Devolución</small>
+                            <strong>@prestamo.FechaDevolucionEsperada.ToString("dd/MM/yyyy")</strong>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    @if (prestamo.EstadoPrestamo == "Activo")
+                    {
+                        @if (prestamo.EstaVencido)
+                        {
+                            <div class="alert alert-danger mb-0">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>¡Vencido!</strong>
+                                @((DateTime.Now - prestamo.FechaDevolucionEsperada).Days) días de retraso
+                            </div>
+                        }
+                        else
+                        {
+                            var diasRestantes = (prestamo.FechaDevolucionEsperada - DateTime.Now).Days;
+                            <div class="alert alert-@(diasRestantes <= 3 ? "warning" : "info") mb-0">
+                                <i class="fas fa-clock"></i>
+                                Quedan <strong>@diasRestantes días</strong> para devolver
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-success mb-0">
+                            <i class="fas fa-check-circle"></i>
+                            Devuelto el @prestamo.FechaDevolucionReal?.ToString("dd/MM/yyyy")
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-book-open fa-5x text-muted mb-3"></i>
+            <h4 class="text-muted">No tienes préstamos registrados</h4>
+            <p class="text-muted">Explora nuestro catálogo y realiza tu primera reserva</p>
+            <a asp-controller="Libros" asp-action="Catalogo" class="btn btn-primary mt-3">
+                <i class="fas fa-search"></i> Ver Catálogo
+            </a>
+        </div>
+    }
+</div>

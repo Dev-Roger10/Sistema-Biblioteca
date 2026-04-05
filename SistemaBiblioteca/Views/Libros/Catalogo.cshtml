@@ -1,0 +1,172 @@
+﻿@model IEnumerable<SistemaBiblioteca.Models.Libro>
+
+@{
+    ViewData["Title"] = "Catálogo de Libros";
+}
+
+<!-- Hero Section -->
+<div class="row mb-4">
+    <div class="col-12 text-center">
+     <h1 class="display-4 fw-bold color1">
+     <i class="fas fa-book color2"></i> Catálogo de Libros
+        </h1>
+        <p class="lead color2">Explora nuestra colección</p>
+    </div>
+</div>
+
+<!-- Barra de Búsqueda -->
+<div class="card mb-4 border-0 shadow">
+    <div class="card-body p-4">
+<form method="get" asp-action="Catalogo">
+<div class="row g-3">
+           <div class="col-md-4">
+       <label class="form-label fw-semibold color2">
+    <i class="fas fa-search color2"></i> Buscar
+    </label>
+   <input type="text" name="buscar" class="form-control form-control-lg"
+  placeholder="Título, autor, ISBN..." value="@ViewBag.Buscar">
+  </div>
+       <div class="col-md-3">
+  <label class="form-label fw-semibold color2">
+      <i class="fas fa-tag color2"></i> Categoría
+   </label>
+   <select name="categoria" class="form-select form-select-lg">
+         <option value="">Todas las categorías</option>
+   @foreach (var cat in ViewBag.Categorias as List<SistemaBiblioteca.Models.Categoria>)
+         {
+  <option value="@cat.IdCategoria"
+       selected="@(ViewBag.CategoriaSeleccionada == cat.IdCategoria)">
+ @cat.NombreCategoria
+     </option>
+        }
+    </select>
+</div>
+      <div class="col-md-3">
+   <label class="form-label fw-semibold color2">
+  <i class="fas fa-building color2"></i> Editorial
+     </label>
+      <select name="editorial" class="form-select form-select-lg">
+  <option value="">Todas las editoriales</option>
+        @foreach (var ed in ViewBag.Editoriales as List<SistemaBiblioteca.Models.Editorial>)
+           {
+ <option value="@ed.IdEditorial"
+    selected="@(ViewBag.EditorialSeleccionada == ed.IdEditorial)">
+     @ed.NombreEditorial
+ </option>
+     }
+          </select>
+   </div>
+ <div class="col-md-2 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary btn-lg w-100">
+     <i class="fas fa-search"></i> Buscar
+        </button>
+    </div>
+</div>
+        </form>
+    </div>
+</div>
+
+<!-- Resultados -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <p class="color2">
+   Se encontraron <strong class="color1">@Model.Count()</strong> libro(s)
+     </p>
+    </div>
+    <div class="col-md-6 text-end">
+        <div class="btn-group">
+    <a href="@Url.Action("Catalogo", new { orden = "titulo" })"
+class="btn btn-sm btn-outline-secondary">
+ <i class="fas fa-sort-alpha-down"></i> A-Z
+            </a>
+            <a href="@Url.Action("Catalogo", new { orden = "fecha_desc" })"
+               class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-clock"></i> Más Recientes
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Grid de Libros -->
+<div class="row g-4 mb-5">
+    @if (Model.Any())
+    {
+        @foreach (var libro in Model)
+        {
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm libro-card">
+                    <div class="position-relative">
+                        @if (libro.EjemplaresDisponibles > 0)
+                        {
+                            <span class="badge bg-success position-absolute top-0 end-0 m-2">
+                                Disponible
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">
+                                No Disponible
+                            </span>
+                        }
+                        <img src="@(libro.ImagenPortada ?? "/images/libro-default.jpg")"
+                             class="card-img-top libro-img" alt="@libro.Titulo">
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title fw-bold text-truncate" title="@libro.Titulo">
+                            @libro.Titulo
+                        </h6>
+                        <p class="card-text text-muted small mb-2">
+                            <i class="fas fa-user"></i> @libro.Autor
+                        </p>
+                        <p class="card-text small mb-2">
+                            <span class="badge bg-light text-dark">
+                                @(libro.Categoria?.NombreCategoria ?? "Sin categoría")
+                            </span>
+                        </p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-copy"></i>
+                                    @libro.EjemplaresDisponibles/@libro.TotalEjemplares
+                                </small>
+                                <small class="text-muted">
+                                    @(libro.AñoPublicacion ?? 0)
+                                </small>
+                            </div>
+                            <a asp-action="DetalleLibro" asp-route-id="@libro.IdLibro"
+                               class="btn btn-primary btn-sm w-100">
+                                <i class="fas fa-eye"></i> Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-book-open fa-5x text-muted mb-4"></i>
+            <h4 class="text-muted">No se encontraron libros</h4>
+            <p class="text-muted">Intenta con otros criterios de búsqueda</p>
+        </div>
+    }
+</div>
+
+<style>
+    .libro-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        overflow: hidden;
+    }
+
+        .libro-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+
+    .libro-img {
+        height: 280px;
+        object-fit: cover;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+</style>

@@ -1,0 +1,205 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    var userId = Context.Session.GetInt32("UsuarioId");
+    var userRole = Context.Session.GetString("UsuarioRol");
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+      <h1 class="display-5 fw-bold mb-3 color1">
+       <i class="fas fa-home color3"></i>
+   Bienvenido al Sistema de Gestión de Biblioteca
+      </h1>
+        <p class="lead color2">Panel de control y estadísticas</p>
+    </div>
+</div>
+
+@if (userId != null)
+{
+    <!-- Estadísticas -->
+    <div class="row g-4 mb-5">
+   <div class="col-md-3">
+    <div class="card stats-card">
+  <div class="card-body position-relative">
+         <i class="fas fa-book stats-icon color2"></i>
+   <h6 class="color2 mb-2">Total Libros</h6>
+         <h2 class="fw-bold color1 mb-0">1,250</h2>
+        <small class="text-success"><i class="fas fa-arrow-up"></i> +12 este mes</small>
+  </div>
+ </div>
+        </div>
+   <div class="col-md-3">
+    <div class="card stats-card success">
+        <div class="card-body position-relative">
+         <i class="fas fa-exchange-alt stats-icon text-success"></i>
+  <h6 class="color2 mb-2">Préstamos Activos</h6>
+         <h2 class="fw-bold color1 mb-0">348</h2>
+ <small class="color2">en este momento</small>
+       </div>
+    </div>
+        </div>
+        <div class="col-md-3">
+    <div class="card stats-card warning">
+        <div class="card-body position-relative">
+    <i class="fas fa-bookmark stats-icon text-warning"></i>
+  <h6 class="color2 mb-2">Reservas Pendientes</h6>
+     <h2 class="fw-bold color1 mb-0">89</h2>
+      <small class="text-warning"><i class="fas fa-clock"></i> Requieren atención</small>
+      </div>
+      </div>
+        </div>
+   <div class="col-md-3">
+            <div class="card stats-card danger">
+    <div class="card-body position-relative">
+         <i class="fas fa-exclamation-triangle stats-icon text-danger"></i>
+ <h6 class="color2 mb-2">Préstamos Vencidos</h6>
+  <h2 class="fw-bold color1 mb-0">23</h2>
+        <small class="text-danger"><i class="fas fa-arrow-down"></i> Acción requerida</small>
+      </div>
+   </div>
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="row mb-5">
+<div class="col-12">
+          <h3 class="mb-4 color1"><i class="fas fa-bolt color3"></i> Acciones Rápidas</h3>
+   </div>
+
+        @if (userRole == "Administrador" || userRole == "Bibliotecario")
+{
+      <div class="col-md-3 mb-3">
+  <a asp-controller="Prestamos" asp-action="Create" class="text-decoration-none">
+           <div class="card h-100 text-center hover-card">
+          <div class="card-body">
+           <i class="fas fa-plus-circle fa-3x color2 mb-3"></i>
+           <h5 class="card-title color1">Registrar Préstamo</h5>
+         <p class="card-text color2">Nuevo préstamo de libro</p>
+  </div>
+     </div>
+  </a>
+     </div>
+   <div class="col-md-3 mb-3">
+       <a asp-controller="Prestamos" asp-action="Index" class="text-decoration-none">
+ <div class="card h-100 text-center hover-card">
+ <div class="card-body">
+<i class="fas fa-undo fa-3x text-success mb-3"></i>
+      <h5 class="card-title color1">Devoluciones</h5>
+  <p class="card-text color2">Procesar devoluciones</p>
+     </div>
+     </div>
+         </a>
+   </div>
+  <div class="col-md-3 mb-3">
+        <a asp-controller="Libros" asp-action="Create" class="text-decoration-none">
+        <div class="card h-100 text-center hover-card">
+            <div class="card-body">
+    <i class="fas fa-book-medical fa-3x color2 mb-3"></i>
+  <h5 class="card-title color1">Agregar Libro</h5>
+      <p class="card-text color2">Nuevo libro al catálogo</p>
+</div>
+</div>
+ </a>
+            </div>
+    <div class="col-md-3 mb-3">
+            <a asp-controller="Sanciones" asp-action="Index" class="text-decoration-none">
+        <div class="card h-100 text-center hover-card">
+          <div class="card-body">
+ <i class="fas fa-dollar-sign fa-3x text-warning mb-3"></i>
+   <h5 class="card-title color1">Gestionar Sanciones</h5>
+                 <p class="card-text color2">Pagos y multas</p>
+    </div>
+         </div>
+ </a>
+            </div>
+  }
+        else
+        {
+    <div class="col-md-4 mb-3">
+     <a asp-controller="Libros" asp-action="Catalogo" class="text-decoration-none">
+      <div class="card h-100 text-center hover-card">
+    <div class="card-body">
+     <i class="fas fa-search fa-3x color2 mb-3"></i>
+        <h5 class="card-title color1">Buscar Libros</h5>
+     <p class="card-text color2">Explora nuestro catálogo</p>
+           </div>
+            </div>
+             </a>
+            </div>
+    <div class="col-md-4 mb-3">
+         <a asp-controller="Reservas" asp-action="MisReservas" class="text-decoration-none">
+        <div class="card h-100 text-center hover-card">
+     <div class="card-body">
+   <i class="fas fa-bookmark fa-3x text-success mb-3"></i>
+         <h5 class="card-title color1">Mis Reservas</h5>
+        <p class="card-text color2">Ver mis reservas activas</p>
+               </div>
+     </div>
+          </a>
+            </div>
+     <div class="col-md-4 mb-3">
+            <a asp-controller="Prestamos" asp-action="MisPrestamos" class="text-decoration-none">
+       <div class="card h-100 text-center hover-card">
+    <div class="card-body">
+    <i class="fas fa-hand-holding fa-3x color2 mb-3"></i>
+           <h5 class="card-title color1">Mis Préstamos</h5>
+         <p class="card-text color2">Estado de mis libros</p>
+  </div>
+             </div>
+            </a>
+            </div>
+        }
+  </div>
+}
+else
+{
+    <!-- Vista para usuarios no autenticados -->
+    <div class="row justify-content-center">
+      <div class="col-md-8 text-center">
+       <div class="card shadow-lg">
+     <div class="card-body p-5">
+         <i class="fas fa-book-open fa-5x color3 mb-4"></i>
+        <h2 class="mb-4 color1">Bienvenido a la Biblioteca Universitaria</h2>
+     <p class="lead color2 mb-4">
+       Accede a miles de libros, gestiona tus préstamos y reservas de manera fácil y rápida.
+            </p>
+           <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+       <a asp-controller="Usuarios" asp-action="Login" class="btn btn-primary btn-lg px-5">
+   <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+     </a>
+   <a asp-controller="Usuarios" asp-action="Registro" class="btn btn-outline-primary btn-lg px-5">
+    <i class="fas fa-user-plus"></i> Registrarse
+      </a>
+ </div>
+    </div>
+    </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4 text-center mb-4">
+            <i class="fas fa-book fa-4x color3 mb-3"></i>
+       <h4 class="color1">Amplio Catálogo</h4>
+ <p class="color2">Miles de libros de todas las categorías a tu disposición</p>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+            <i class="fas fa-clock fa-4x text-success mb-3"></i>
+   <h4 class="color1">Disponibilidad 24/7</h4>
+            <p class="color2">Consulta y reserva libros en cualquier momento</p>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+       <i class="fas fa-mobile-alt fa-4x color3 mb-3"></i>
+            <h4 class="color1">Acceso Digital</h4>
+     <p class="color2">Gestiona todo desde tu computadora o móvil</p>
+ </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
+}

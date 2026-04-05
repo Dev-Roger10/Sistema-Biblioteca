@@ -1,0 +1,195 @@
+﻿@model IEnumerable<SistemaBiblioteca.Models.Sancion>
+
+@{
+    ViewData["Title"] = "Gestión de Sanciones";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold color1">
+            <i class="fas fa-gavel color2"></i> Gestión de Sanciones
+        </h2>
+        <p class="color2">Administra sanciones y multas del sistema</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nueva Sanción
+        </a>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm border-start border-warning border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="color2 mb-1">Sanciones Pendientes</h6>
+                        <h2 class="fw-bold color1 mb-0">@ViewBag.SancionesPendientes</h2>
+                    </div>
+                    <div class="text-warning">
+                        <i class="fas fa-exclamation-circle fa-3x opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm border-start border-danger border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="color2 mb-1">Monto Total Pendiente</h6>
+                        <h2 class="fw-bold color1 mb-0">S/ @ViewBag.TotalPendiente.ToString("N2")</h2>
+                    </div>
+                    <div class="text-danger">
+                        <i class="fas fa-dollar-sign fa-3x opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4 border-0 shadow-sm">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold color2">Estado</label>
+                <select name="filtro" class="form-select">
+                    <option value="">Todos los estados</option>
+                    <option value="pendientes" selected="@(ViewBag.Filtro == "pendientes")">Pendientes</option>
+                    <option value="pagadas" selected="@(ViewBag.Filtro == "pagadas")">Pagadas</option>
+                    <option value="anuladas" selected="@(ViewBag.Filtro == "anuladas")">Anuladas</option>
+                </select>
+            </div>
+            <div class="col-md-7">
+                <label class="form-label fw-semibold color2">Buscar</label>
+                <input type="text" name="buscar" class="form-control"
+                       placeholder="Buscar por nombre, DNI...">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de Sanciones -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Tipo</th>
+                        <th>Monto</th>
+                        <th>Pagado</th>
+                        <th>Restante</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sancion in Model)
+                    {
+                        <tr>
+                            <td>@sancion.IdSancion</td>
+                            <td>
+                                <strong>@sancion.Usuario.NombreCompleto</strong>
+                                <br><small class="text-muted">@sancion.Usuario.DNI</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-@(sancion.TipoSancion == "Retraso" ? "warning" : "danger")">
+                                    @sancion.TipoSancion
+                                </span>
+                            </td>
+                            <td><strong>S/ @sancion.Monto.ToString("N2")</strong></td>
+                            <td>
+                                @{
+                                    var pagado = sancion.Pagos?.Sum(p => p.MontoPagado) ?? 0;
+                                }
+                                S/ @pagado.ToString("N2")
+                            </td>
+                            <td>
+                                <strong class="text-danger">S/ @sancion.MontoRestante.ToString("N2")</strong>
+                            </td>
+                            <td>
+                                <small>@sancion.FechaSancion.ToString("dd/MM/yyyy")</small>
+                            </td>
+                            <td>
+                                @switch (sancion.EstadoSancion)
+                                {
+                                    case "Pendiente":
+                                        <span class="badge bg-warning">Pendiente</span>
+                                        break;
+                                    case "Pagada":
+                                        <span class="badge bg-success">Pagada</span>
+                                        break;
+                                    case "Anulada":
+                                        <span class="badge bg-secondary">Anulada</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Details" asp-route-id="@sancion.IdSancion"
+                                       class="btn btn-info" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    @if (sancion.EstadoSancion == "Pendiente")
+                                    {
+                                        <a asp-action="RegistrarPago" asp-route-id="@sancion.IdSancion"
+                                           class="btn btn-success" title="Registrar pago">
+                                            <i class="fas fa-dollar-sign"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-danger"
+                                                onclick="anularSancion(@sancion.IdSancion)"
+                                                title="Anular">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function anularSancion(id) {
+            var motivo = prompt('Ingrese el motivo de la anulación:');
+            if (motivo && motivo.trim() !== '') {
+                $.ajax({
+                    url: '@Url.Action("Anular")',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        motivo: motivo,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+    @Html.AntiForgeryToken()
+}
