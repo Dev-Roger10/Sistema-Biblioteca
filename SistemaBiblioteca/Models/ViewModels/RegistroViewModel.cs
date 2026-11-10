@@ -19,13 +19,16 @@ namespace SistemaBiblioteca.Models.ViewModels
         [Display(Name = "DNI")]
         public string DNI { get; set; }
 
+        // Opcionales en el formulario. Con <Nullable>enable</Nullable>, un string sin "?"
+        // se trata como [Required] implícito: el formulario rechazaba el registro si estos
+        // campos quedaban vacíos aunque la etiqueta no los marca como obligatorios.
         [StringLength(20)]
         [Display(Name = "Teléfono")]
-        public string Telefono { get; set; }
+        public string? Telefono { get; set; }
 
         [StringLength(200)]
         [Display(Name = "Dirección")]
-        public string Direccion { get; set; }
+        public string? Direccion { get; set; }
 
         [Required(ErrorMessage = "El rol es obligatorio")]
         [Display(Name = "Tipo de Usuario")]

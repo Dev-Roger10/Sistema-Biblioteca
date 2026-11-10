@@ -14,7 +14,7 @@
                 <p class="mb-0 mt-2">Completa el formulario para registrarte</p>
             </div>
             <div class="card-body p-5">
-                <form asp-action="Registro" method="post">
+                <form id="formRegistro" asp-action="Registro" method="post">
                     @Html.AntiForgeryToken()
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
@@ -66,7 +66,7 @@
                         <label asp-for="IdRol" class="form-label fw-semibold color2">Tipo de Usuario *</label>
                         <select asp-for="IdRol" class="form-select" required>
                             <option value="">-- Seleccione --</option>
-                            @foreach (var rol in ViewBag.Roles as List<SistemaBiblioteca.Models.Rol>)
+                            @foreach (var rol in ViewBag.Roles as List<SistemaBiblioteca.Models.Rol> ?? new List<SistemaBiblioteca.Models.Rol>())
                             {
                                 <option value="@rol.IdRol">@rol.NombreRol</option>
                             }
@@ -100,15 +100,16 @@
                             <div class="form-text">Mínimo 6 caracteres</div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold color2">Confirmar Contraseña *</label>
+                            <label asp-for="ConfirmarContrasena" class="form-label fw-semibold color2">Confirmar Contraseña *</label>
                             <div class="input-group">
-                                <input name="confirmarContrasena" class="form-control" type="password"
-                                       id="confirmar" placeholder="••••••••" required>
+                                <input asp-for="ConfirmarContrasena" class="form-control" type="password"
+                                       id="confirmar" placeholder="••••••••">
                                 <button class="btn btn-outline-secondary" type="button"
                                         onclick="togglePasswordReg('confirmar', 'icon2')">
                                     <i class="fas fa-eye" id="icon2"></i>
                                 </button>
                             </div>
+                            <span asp-validation-for="ConfirmarContrasena" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -157,49 +158,10 @@
             }
         }
 
-        // Validar que las contraseñas coincidan
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const pass = document.getElementById('password').value;
-            const confirm = document.getElementById('confirmar').value;
-
-            if (pass !== confirm) {
-                e.preventDefault();
-                alert('Las contraseñas no coinciden');
-                document.getElementById('confirmar').focus();
-            }
-        });
-    </script>
-
-
-<style>
-    .bg-gradient {
-        background: linear-gradient(135deg, #131929 0%, #0d456b 100%);
-    }
-</style>
-
-
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
-    <script>
-        function togglePasswordReg(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
-        // Validar que las contraseñas coincidan
-        document.querySelector('form').addEventListener('submit', function(e) {
+        // Aviso rápido si las contraseñas no coinciden (el servidor también lo valida).
+        // Se engancha al formulario por id: querySelector('form') podía tomar otro
+        // formulario de la página (p. ej. del layout).
+        document.getElementById('formRegistro').addEventListener('submit', function (e) {
             const pass = document.getElementById('password').value;
             const confirm = document.getElementById('confirmar').value;
 
