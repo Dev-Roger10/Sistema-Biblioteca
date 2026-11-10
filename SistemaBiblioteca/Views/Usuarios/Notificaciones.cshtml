@@ -111,15 +111,20 @@
 
 @section Scripts {
     <script>
+        // Token antiforgery del formulario oculto; requerido por [ValidateAntiForgeryToken].
+        function token() {
+            return $('input[name="__RequestVerificationToken"]').first().val();
+        }
+
         function marcarLeida(id) {
-            $.post('@Url.Action("MarcarLeida", "Usuarios")', { id: id }, function() {
+            $.post('@Url.Action("MarcarLeida", "Usuarios")', { id: id, __RequestVerificationToken: token() }, function() {
                 location.reload();
             });
         }
 
         function marcarTodasLeidas() {
             if (confirm('¿Marcar todas las notificaciones como leídas?')) {
-                $.post('@Url.Action("MarcarTodasLeidas", "Usuarios")', function() {
+                $.post('@Url.Action("MarcarTodasLeidas", "Usuarios")', { __RequestVerificationToken: token() }, function() {
                     location.reload();
                 });
             }
@@ -127,7 +132,7 @@
 
         function eliminarNotificacion(id) {
             if (confirm('¿Eliminar esta notificación?')) {
-                $.post('@Url.Action("EliminarNotificacion", "Usuarios")', { id: id }, function() {
+                $.post('@Url.Action("EliminarNotificacion", "Usuarios")', { id: id, __RequestVerificationToken: token() }, function() {
                     location.reload();
                 });
             }

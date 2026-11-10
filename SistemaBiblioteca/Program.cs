@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaBiblioteca.Data;
+using SistemaBiblioteca.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,9 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
+
+// Hash de contraseñas (PBKDF2 con sal). Sin estado, por eso Singleton.
+builder.Services.AddSingleton<IPasswordService, PasswordService>();
 
 // Acceso al HttpContext fuera de los controladores
 builder.Services.AddHttpContextAccessor();
