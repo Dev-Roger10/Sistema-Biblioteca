@@ -39,6 +39,9 @@ builder.Services.AddSession(options =>
 // Hash de contraseñas (PBKDF2 con sal). Sin estado, por eso Singleton.
 builder.Services.AddSingleton<IPasswordService, PasswordService>();
 
+// Reglas de préstamos y devoluciones. Scoped porque comparte el DbContext de la petición.
+builder.Services.AddScoped<IPrestamoService, PrestamoService>();
+
 // Acceso al HttpContext fuera de los controladores
 builder.Services.AddHttpContextAccessor();
 

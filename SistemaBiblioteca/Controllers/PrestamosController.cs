@@ -1,5 +1,6 @@
 ﻿using SistemaBiblioteca.Data;
 using SistemaBiblioteca.Models;
+using SistemaBiblioteca.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,11 +11,16 @@ namespace SistemaBiblioteca.Controllers
     {
         private readonly BibliotecaContext _context;
         private readonly ILogger<PrestamosController> _logger;
+        private readonly IPrestamoService _prestamos;
 
-        public PrestamosController(BibliotecaContext context, ILogger<PrestamosController> logger)
+        public PrestamosController(
+            BibliotecaContext context,
+            ILogger<PrestamosController> logger,
+            IPrestamoService prestamos)
         {
             _context = context;
             _logger = logger;
+            _prestamos = prestamos;
         }
 
         // LISTADO DE PRÉSTAMOS
@@ -40,8 +46,12 @@ namespace SistemaBiblioteca.Controllers
             {
                 prestamos = filtro switch
                 {
-                    "activos" => prestamos.Where(p => p.EstadoPrestamo == "Activo"),
-                    "vencidos" => prestamos.Where(p => p.EstadoPrestamo == "Activo" && DateTime.Now > p.FechaDevolucionEsperada),
+                    "activos" => prestamos.Where(p => p.EstadoPrestamo == EstadoPrestamo.Activo),
+                    // "Vencido" = sigue en poder del usuario y pasó la fecha. Se calcula por fecha;
+                    // el valor "Vencido" guardado solo existe en registros antiguos.
+                    "vencidos" => prestamos.Where(p =>
+                        (p.EstadoPrestamo == EstadoPrestamo.Activo || p.EstadoPrestamo == EstadoPrestamo.Vencido) &&
+                        DateTime.Now > p.FechaDevolucionEsperada),
                     "devueltos" => prestamos.Where(p => p.EstadoPrestamo == "Devuelto"),
                     _ => prestamos
                 };
@@ -71,21 +81,12 @@ namespace SistemaBiblioteca.Controllers
                 .OrderByDescending(p => p.FechaPrestamo)
                 .ToListAsync();
 
-            // Actualizar estados vencidos
-            var vencidos = resultado.Where(p => p.EstadoPrestamo == "Activo" && DateTime.Now > p.FechaDevolucionEsperada);
-            foreach (var prestamo in vencidos)
-            {
-                if (prestamo.EstadoPrestamo != "Vencido")
-                {
-                    prestamo.EstadoPrestamo = "Vencido";
-                    prestamo.DiasRetraso = (DateTime.Now - prestamo.FechaDevolucionEsperada).Days;
-                }
-            }
-            await _context.SaveChangesAsync();
-
+            // Un GET no debe modificar datos: el vencimiento se deriva de la fecha
+            // (Prestamo.EstaVencido) y no se persiste. Antes se guardaba aquí, lo que
+            // además sacaba al préstamo del conteo de "Activo" y burlaba el límite.
             ViewBag.Filtro = filtro;
-            ViewBag.PrestamosActivos = resultado.Count(p => p.EstadoPrestamo == "Activo");
-            ViewBag.PrestamosVencidos = resultado.Count(p => p.EstadoPrestamo == "Vencido" || (p.EstadoPrestamo == "Activo" && p.EstaVencido));
+            ViewBag.PrestamosActivos = resultado.Count(p => p.EstadoPrestamo != EstadoPrestamo.Devuelto);
+            ViewBag.PrestamosVencidos = resultado.Count(p => p.EstadoPrestamo != EstadoPrestamo.Devuelto && p.EstaVencido);
 
             return View(resultado);
         }
@@ -104,8 +105,8 @@ namespace SistemaBiblioteca.Controllers
                 .OrderByDescending(p => p.FechaPrestamo)
                 .ToListAsync();
 
-            ViewBag.PrestamosActivos = prestamos.Count(p => p.EstadoPrestamo == "Activo");
-            ViewBag.PrestamosVencidos = prestamos.Count(p => p.EstaVencido && p.EstadoPrestamo == "Activo");
+            ViewBag.PrestamosActivos = prestamos.Count(p => p.EstadoPrestamo != EstadoPrestamo.Devuelto);
+            ViewBag.PrestamosVencidos = prestamos.Count(p => p.EstadoPrestamo != EstadoPrestamo.Devuelto && p.EstaVencido);
 
             return View(prestamos);
         }
@@ -175,97 +176,29 @@ namespace SistemaBiblioteca.Controllers
 
             try
             {
-                // Verificar que el ejemplar esté disponible
-                var ejemplar = await _context.Ejemplares
-                    .Include(e => e.Libro)
-                    .FirstOrDefaultAsync(e => e.IdEjemplar == idEjemplar);
+                // Todas las reglas (disponibilidad, límite, reserva, atomicidad) viven en el servicio.
+                var resultado = await _prestamos.RegistrarPrestamoAsync(idUsuario, idEjemplar, idReserva, observaciones);
 
-                if (ejemplar == null || ejemplar.Estado != "Disponible")
+                if (!resultado.Exito)
                 {
-                    TempData["Error"] = "El ejemplar no está disponible";
-                    return RedirectToAction(nameof(Create));
+                    TempData["Error"] = resultado.Error;
+                    return idReserva.HasValue
+                        ? RedirectToAction(nameof(Create), new { idReserva })
+                        : RedirectToAction(nameof(Create));
                 }
 
-                // Obtener configuración de días según rol
-                var usuario = await _context.Usuarios.Include(u => u.Rol).FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
-                if (usuario == null)
-                {
-                    TempData["Error"] = "Usuario no encontrado";
-                    return RedirectToAction(nameof(Create));
-                }
+                var prestamo = resultado.Valor!;
+                string titulo = prestamo.Ejemplar.Libro.Titulo;
 
-                int diasPrestamo = 14; // Por defecto
-                if (usuario.Rol.NombreRol == "Docente")
-                {
-                    var configDocente = await _context.ConfiguracionSistema
-                        .FirstOrDefaultAsync(c => c.Parametro == "DiasMaximoPrestamoDocente");
-                    diasPrestamo = int.Parse(configDocente?.Valor ?? "30");
-                }
-                else
-                {
-                    var config = await _context.ConfiguracionSistema
-                        .FirstOrDefaultAsync(c => c.Parametro == "DiasMaximoPrestamo");
-                    diasPrestamo = int.Parse(config?.Valor ?? "14");
-                }
+                if (resultado.Advertencia != null)
+                    TempData["Warning"] = resultado.Advertencia;
 
-                // Verificar límite de préstamos
-                var prestamosActivos = await _context.Prestamos
-                    .CountAsync(p => p.IdUsuario == idUsuario && p.EstadoPrestamo == "Activo");
-
-                var limitePrestamos = await _context.ConfiguracionSistema
-                    .FirstOrDefaultAsync(c => c.Parametro == "LimitePrestamos");
-                int limite = int.Parse(limitePrestamos?.Valor ?? "5");
-
-                if (prestamosActivos >= limite)
-                {
-                    TempData["Error"] = $"El usuario ha alcanzado el límite de {limite} préstamos simultáneos";
-                    return RedirectToAction(nameof(Create));
-                }
-
-                // Verificar sanciones pendientes
-                var sancionesPendientes = await _context.Sanciones
-                    .AnyAsync(s => s.IdUsuario == idUsuario && s.EstadoSancion == "Pendiente");
-
-                if (sancionesPendientes)
-                {
-                    TempData["Warning"] = "Advertencia: El usuario tiene sanciones pendientes";
-                }
-
-                // Crear préstamo
-                var prestamo = new Prestamo
-                {
-                    IdUsuario = idUsuario,
-                    IdEjemplar = idEjemplar,
-                    IdReserva = idReserva,
-                    FechaPrestamo = DateTime.Now,
-                    FechaDevolucionEsperada = DateTime.Now.AddDays(diasPrestamo),
-                    EstadoPrestamo = "Activo",
-                    Observaciones = observaciones
-                };
-
-                _context.Prestamos.Add(prestamo);
-
-                // Actualizar estado del ejemplar
-                ejemplar.Estado = "Prestado";
-
-                // Si viene de una reserva, actualizarla
-                if (idReserva.HasValue)
-                {
-                    var reserva = await _context.Reservas.FindAsync(idReserva.Value);
-                    if (reserva != null)
-                    {
-                        reserva.EstadoReserva = "Confirmada";
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-
-                // Enviar notificación al usuario
+                // Efectos secundarios: el préstamo ya está confirmado; si fallan no lo deshacen.
                 await EnviarNotificacion(idUsuario, "Préstamo registrado",
-                    $"Se ha registrado el préstamo del libro '{ejemplar.Libro.Titulo}'. Fecha de devolución: {prestamo.FechaDevolucionEsperada:dd/MM/yyyy}");
+                    $"Se ha registrado el préstamo del libro '{titulo}'. Fecha de devolución: {prestamo.FechaDevolucionEsperada:dd/MM/yyyy}");
 
                 await RegistrarAccion("Crear préstamo", "Prestamos", prestamo.IdPrestamo,
-                    $"Préstamo creado para usuario {usuario.NombreCompleto}, libro '{ejemplar.Libro.Titulo}'");
+                    $"Préstamo creado para usuario {prestamo.Usuario.NombreCompleto}, libro '{titulo}'");
 
                 TempData["Success"] = $"Préstamo registrado correctamente. Devolución: {prestamo.FechaDevolucionEsperada:dd/MM/yyyy}";
                 return RedirectToAction(nameof(Index));
@@ -302,24 +235,14 @@ namespace SistemaBiblioteca.Controllers
 
             if (prestamo == null) return NotFound();
 
-            if (prestamo.EstadoPrestamo != "Activo" && prestamo.EstadoPrestamo != "Vencido")
+            if (prestamo.EstadoPrestamo == EstadoPrestamo.Devuelto)
             {
                 TempData["Error"] = "Este préstamo ya fue devuelto";
                 return RedirectToAction(nameof(Index));
             }
 
-            // Calcular días de retraso y multa
-            int diasRetraso = 0;
-            decimal multa = 0;
-
-            if (DateTime.Now > prestamo.FechaDevolucionEsperada)
-            {
-                diasRetraso = (DateTime.Now - prestamo.FechaDevolucionEsperada).Days;
-                var multaDiaria = await _context.ConfiguracionSistema
-                    .FirstOrDefaultAsync(c => c.Parametro == "MultaDiaria");
-                decimal multaPorDia = decimal.Parse(multaDiaria?.Valor ?? "2.00");
-                multa = multaPorDia * diasRetraso;
-            }
+            // Vista previa de retraso y multa (la devolución real la recalcula el servicio).
+            var (diasRetraso, multa) = await _prestamos.CalcularRetrasoAsync(prestamo.FechaDevolucionEsperada);
 
             ViewBag.DiasRetraso = diasRetraso;
             ViewBag.Multa = multa;
@@ -341,80 +264,36 @@ namespace SistemaBiblioteca.Controllers
 
             try
             {
-                var prestamo = await _context.Prestamos
-                    .Include(p => p.Usuario)
-                    .Include(p => p.Ejemplar).ThenInclude(e => e.Libro)
-                    .FirstOrDefaultAsync(p => p.IdPrestamo == id);
+                var resultado = await _prestamos.RegistrarDevolucionAsync(id, observacionesDevolucion, estadoEjemplar);
 
-                if (prestamo == null)
+                if (!resultado.Exito)
                 {
-                    TempData["Error"] = "Préstamo no encontrado";
+                    TempData["Error"] = resultado.Error;
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Calcular días de retraso
-                int diasRetraso = 0;
-                if (DateTime.Now > prestamo.FechaDevolucionEsperada)
+                var devolucion = resultado.Valor!;
+                var prestamo = devolucion.Prestamo;
+                string titulo = prestamo.Ejemplar.Libro.Titulo;
+
+                // Efectos secundarios: la devolución y la sanción ya están confirmadas.
+                if (devolucion.Sancion != null)
                 {
-                    diasRetraso = (DateTime.Now - prestamo.FechaDevolucionEsperada).Days;
-                }
-
-                // Actualizar préstamo
-                prestamo.FechaDevolucionReal = DateTime.Now;
-                prestamo.DiasRetraso = diasRetraso;
-                prestamo.EstadoPrestamo = "Devuelto";
-                prestamo.Observaciones += $"\n[Devolución] {observacionesDevolucion}";
-
-                // Actualizar estado del ejemplar
-                prestamo.Ejemplar.Estado = estadoEjemplar ?? "Disponible";
-                if (!string.IsNullOrEmpty(observacionesDevolucion))
-                {
-                    prestamo.Ejemplar.Observaciones += $"\n[{DateTime.Now:dd/MM/yyyy}] {observacionesDevolucion}";
-                }
-
-                await _context.SaveChangesAsync();
-
-                // Si hay retraso, crear sanción
-                if (diasRetraso > 0)
-                {
-                    var multaDiaria = await _context.ConfiguracionSistema
-                        .FirstOrDefaultAsync(c => c.Parametro == "MultaDiaria");
-                    decimal multaPorDia = decimal.Parse(multaDiaria?.Valor ?? "2.00");
-                    decimal multa = multaPorDia * diasRetraso;
-
-                    var sancion = new Sancion
-                    {
-                        IdUsuario = prestamo.IdUsuario,
-                        IdPrestamo = prestamo.IdPrestamo,
-                        TipoSancion = "Retraso",
-                        Monto = multa,
-                        FechaSancion = DateTime.Now,
-                        EstadoSancion = "Pendiente",
-                        Descripcion = $"Sanción por {diasRetraso} días de retraso en la devolución del libro '{prestamo.Ejemplar.Libro.Titulo}'"
-                    };
-
-                    _context.Sanciones.Add(sancion);
-                    await _context.SaveChangesAsync();
-
-                    // Notificar sanción
                     await EnviarNotificacion(prestamo.IdUsuario, "Sanción por retraso",
-                        $"Se ha generado una sanción de S/{multa:F2} por {diasRetraso} días de retraso en la devolución del libro '{prestamo.Ejemplar.Libro.Titulo}'");
+                        $"Se ha generado una sanción de S/{devolucion.Multa:F2} por {devolucion.DiasRetraso} días de retraso en la devolución del libro '{titulo}'");
                 }
                 else
                 {
-                    // Notificar devolución exitosa
                     await EnviarNotificacion(prestamo.IdUsuario, "Devolución registrada",
-                        $"Se ha registrado la devolución del libro '{prestamo.Ejemplar.Libro.Titulo}'. Gracias por devolver a tiempo.");
+                        $"Se ha registrado la devolución del libro '{titulo}'. Gracias por devolver a tiempo.");
                 }
 
                 await RegistrarAccion("Registrar devolución", "Prestamos", prestamo.IdPrestamo,
-                    $"Devolución registrada. Días de retraso: {diasRetraso}. Libro: '{prestamo.Ejemplar.Libro.Titulo}'");
+                    $"Devolución registrada. Días de retraso: {devolucion.DiasRetraso}. Libro: '{titulo}'");
 
-                string mensaje = diasRetraso > 0
-                    ? $"Devolución registrada con {diasRetraso} días de retraso. Sanción generada."
+                TempData["Success"] = devolucion.DiasRetraso > 0
+                    ? $"Devolución registrada con {devolucion.DiasRetraso} días de retraso. Sanción generada."
                     : "Devolución registrada correctamente";
-
-                TempData["Success"] = mensaje;
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)

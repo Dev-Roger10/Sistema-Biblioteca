@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaBiblioteca.Data;
 using SistemaBiblioteca.Models;
+using SistemaBiblioteca.Services;
 
 namespace SistemaBiblioteca.Controllers
 {
@@ -9,11 +10,16 @@ namespace SistemaBiblioteca.Controllers
     {
         private readonly BibliotecaContext _context;
         private readonly ILogger<ReservasController> _logger;
+        private readonly IPrestamoService _prestamos;
 
-        public ReservasController(BibliotecaContext context, ILogger<ReservasController> logger)
+        public ReservasController(
+            BibliotecaContext context,
+            ILogger<ReservasController> logger,
+            IPrestamoService prestamos)
         {
             _context = context;
             _logger = logger;
+            _prestamos = prestamos;
         }
 
 
@@ -28,6 +34,10 @@ namespace SistemaBiblioteca.Controllers
                 TempData["Error"] = "No tiene permisos para acceder";
                 return RedirectToAction("MisReservas");
             }
+
+            // Primero se marcan las vencidas; si se hiciera después, este listado
+            // mostraría como "Pendiente" reservas que ya expiraron.
+            await ActualizarReservasVencidas();
 
             var reservas = _context.Reservas
                 .Include(r => r.Usuario)
@@ -60,9 +70,6 @@ namespace SistemaBiblioteca.Controllers
                 .OrderByDescending(r => r.FechaReserva)
                 .ToListAsync();
 
-            // Actualizar reservas vencidas
-            await ActualizarReservasVencidas();
-
             ViewBag.Filtro = filtro;
             ViewBag.ReservasPendientes = resultado.Count(r => r.EstadoReserva == "Pendiente");
             ViewBag.ReservasVencidas = resultado.Count(r => r.EstadoReserva == "Vencida");
@@ -77,14 +84,14 @@ namespace SistemaBiblioteca.Controllers
 
             int userId = HttpContext.Session.GetInt32("UsuarioId").Value;
 
+            await ActualizarReservasVencidas();
+
             var reservas = await _context.Reservas
                 .Include(r => r.Libro).ThenInclude(l => l.Categoria)
                 .Include(r => r.Libro).ThenInclude(l => l.Editorial)
                 .Where(r => r.IdUsuario == userId)
                 .OrderByDescending(r => r.FechaReserva)
                 .ToListAsync();
-
-            await ActualizarReservasVencidas();
 
             ViewBag.ReservasPendientes = reservas.Count(r => r.EstadoReserva == "Pendiente");
 
@@ -254,8 +261,8 @@ namespace SistemaBiblioteca.Controllers
             try
             {
                 var reserva = await _context.Reservas
-                    .Include(r => r.Usuario).ThenInclude(u => u.Rol)
                     .Include(r => r.Libro)
+                    .AsNoTracking()
                     .FirstOrDefaultAsync(r => r.IdReserva == idReserva);
 
                 if (reserva == null)
@@ -264,54 +271,23 @@ namespace SistemaBiblioteca.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Verificar que el ejemplar esté disponible
-                var ejemplar = await _context.Ejemplares
-                    .FirstOrDefaultAsync(e => e.IdEjemplar == idEjemplar && e.IdLibro == reserva.IdLibro);
+                // Mismas reglas que un préstamo manual (límite, reserva pendiente, libro
+                // coincidente, ejemplar libre) y creación atómica: las aplica el servicio.
+                var resultado = await _prestamos.RegistrarPrestamoAsync(
+                    reserva.IdUsuario, idEjemplar, idReserva, $"Generado desde reserva #{idReserva}");
 
-                if (ejemplar == null || ejemplar.Estado != "Disponible")
+                if (!resultado.Exito)
                 {
-                    TempData["Error"] = "El ejemplar no está disponible";
+                    TempData["Error"] = resultado.Error;
                     return RedirectToAction(nameof(Confirmar), new { id = idReserva });
                 }
 
-                // Obtener días de préstamo según rol
-                int diasPrestamo = 14;
-                if (reserva.Usuario.Rol.NombreRol == "Docente")
-                {
-                    var configDocente = await _context.ConfiguracionSistema
-                        .FirstOrDefaultAsync(c => c.Parametro == "DiasMaximoPrestamoDocente");
-                    diasPrestamo = int.Parse(configDocente?.Valor ?? "30");
-                }
-                else
-                {
-                    var config = await _context.ConfiguracionSistema
-                        .FirstOrDefaultAsync(c => c.Parametro == "DiasMaximoPrestamo");
-                    diasPrestamo = int.Parse(config?.Valor ?? "14");
-                }
+                var prestamo = resultado.Valor!;
 
-                // Crear préstamo
-                var prestamo = new Prestamo
-                {
-                    IdUsuario = reserva.IdUsuario,
-                    IdEjemplar = idEjemplar,
-                    IdReserva = idReserva,
-                    FechaPrestamo = DateTime.Now,
-                    FechaDevolucionEsperada = DateTime.Now.AddDays(diasPrestamo),
-                    EstadoPrestamo = "Activo",
-                    Observaciones = $"Generado desde reserva #{idReserva}"
-                };
+                if (resultado.Advertencia != null)
+                    TempData["Warning"] = resultado.Advertencia;
 
-                _context.Prestamos.Add(prestamo);
-
-                // Actualizar reserva
-                reserva.EstadoReserva = "Confirmada";
-
-                // Actualizar ejemplar
-                ejemplar.Estado = "Prestado";
-
-                await _context.SaveChangesAsync();
-
-                // Enviar notificación
+                // Efectos secundarios: el préstamo ya está confirmado; si fallan no lo deshacen.
                 await EnviarNotificacion(reserva.IdUsuario, "Reserva confirmada - Préstamo registrado",
                     $"Su reserva del libro '{reserva.Libro.Titulo}' ha sido confirmada y el préstamo ha sido registrado. Fecha de devolución: {prestamo.FechaDevolucionEsperada:dd/MM/yyyy}");
 
