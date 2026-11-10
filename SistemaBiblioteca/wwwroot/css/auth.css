@@ -1,0 +1,112 @@
+/* Login y Registro: compactos para que quepan en una pantalla a 100% de zoom */
+
+/* Quita el relleno/altura mínima del layout y el margen inferior de site.css */
+body { margin-bottom: 0; }
+.main-content { min-height: 0; padding: 1rem 0; }
+
+.auth-wrap {
+    /* alto de pantalla - barra de navegación (~72px) - relleno del contenedor */
+    min-height: calc(100vh - 112px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card {
+    width: 100%;
+    display: flex;
+    overflow: hidden;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 14px 40px rgba(13, 69, 107, 0.18);
+}
+
+.auth-card:hover { transform: none; box-shadow: 0 14px 40px rgba(13, 69, 107, 0.18); }
+
+.auth-card.sm { max-width: 820px; }
+.auth-card.lg { max-width: 980px; }
+
+/* Panel de marca (solo pantallas grandes) */
+.auth-side {
+    flex: 0 0 300px;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    color: #fff;
+    padding: 2rem 1.8rem;
+    position: relative;
+    background: radial-gradient(420px 220px at 100% 0%, rgba(15, 255, 248, 0.3), transparent 60%),
+                linear-gradient(160deg, var(--color1) 0%, var(--color2) 100%);
+}
+
+.auth-side .side-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+    color: var(--color2);
+    background: linear-gradient(135deg, var(--color5), var(--color4));
+    margin-bottom: 1.1rem;
+}
+
+.auth-side h2 { font-size: 1.5rem; font-weight: 700; line-height: 1.2; margin-bottom: .6rem; }
+.auth-side p { color: rgba(255, 255, 255, 0.85); font-size: .92rem; margin: 0; }
+
+.auth-side ul { list-style: none; padding: 0; margin: 1.2rem 0 0; font-size: .88rem; }
+.auth-side li { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; color: rgba(255, 255, 255, 0.92); }
+.auth-side li i { color: var(--color5); }
+
+@media (min-width: 992px) {
+    .auth-side { display: flex; }
+}
+
+/* Formulario */
+.auth-main { flex: 1; padding: 1.6rem 1.8rem; min-width: 0; }
+
+.auth-title { color: var(--color2); font-weight: 700; font-size: 1.35rem; margin: 0; }
+.auth-sub { color: #5b7488; font-size: .9rem; margin: .15rem 0 1rem; }
+
+.auth-form .form-label { font-size: .82rem; font-weight: 600; color: var(--color2); margin-bottom: .2rem; }
+.auth-form .form-control,
+.auth-form .form-select {
+    padding: .5rem .75rem;
+    font-size: .92rem;
+    border-radius: 10px;
+    border: 1px solid rgba(13, 69, 107, 0.2);
+}
+
+.auth-form .form-control:focus,
+.auth-form .form-select:focus {
+    border-color: var(--color3);
+    box-shadow: 0 0 0 .2rem rgba(8, 131, 188, 0.18);
+}
+
+.auth-form .input-group .btn { padding: .5rem .8rem; border: 1px solid rgba(13, 69, 107, 0.2); background: #fff; color: var(--color2); }
+.auth-form .input-group .form-control { border-right: 0; }
+.auth-form .btn-submit { padding: .6rem 1rem; }
+.auth-form .field-error { font-size: .78rem; display: block; }
+.auth-form .form-check-label { font-size: .85rem; }
+
+.auth-alt { text-align: center; font-size: .88rem; color: #5b7488; margin-top: .9rem; }
+.auth-alt a { color: var(--color3); font-weight: 600; text-decoration: none; }
+.auth-alt a:hover { text-decoration: underline; }
+
+.auth-link { color: var(--color3); font-size: .85rem; text-decoration: none; }
+.auth-link:hover { text-decoration: underline; }
+
+/* Móvil: tarjeta a todo el ancho, sin altura forzada */
+@media (max-width: 575.98px) {
+    .main-content { padding: .75rem 0; }
+    .auth-wrap { min-height: 0; align-items: flex-start; }
+    .auth-main { padding: 1.3rem 1.1rem; }
+    .auth-card { border-radius: 16px; }
+}
+
+/* Pantallas bajitas (laptops): aún más compacto */
+@media (max-height: 700px) and (min-width: 576px) {
+    .auth-main { padding: 1.2rem 1.6rem; }
+    .auth-sub { margin-bottom: .7rem; }
+    .auth-form .row { --bs-gutter-y: .6rem; }
+}

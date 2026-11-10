@@ -466,7 +466,7 @@
     </div>
 
     <!-- Footer -->
-    @if (HttpContextAccessor.HttpContext.Session.GetInt32("UsuarioId") == null)
+    @if (HttpContextAccessor.HttpContext.Session.GetInt32("UsuarioId") == null && ViewData["OcultarFooter"] == null)
     {
         <footer class="text-center">
             <div class="container">
