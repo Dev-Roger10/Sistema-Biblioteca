@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaBiblioteca.Data;
 using SistemaBiblioteca.Models;
@@ -163,8 +163,10 @@ namespace SistemaBiblioteca.Controllers
                     Nombres = model.Nombres,
                     Apellidos = model.Apellidos,
                     DNI = model.DNI,
-                    Telefono = model.Telefono,
-                    Direccion = model.Direccion,
+                    // Las columnas Telefono/Direccion son NOT NULL en la BD: un campo omitido
+                    // se guarda como cadena vacía en lugar de provocar un error al insertar.
+                    Telefono = model.Telefono?.Trim() ?? string.Empty,
+                    Direccion = model.Direccion?.Trim() ?? string.Empty,
                     IdRol = model.IdRol,
                     Correo = model.Correo,
                     Contrasena = _passwords.Hash(model.Contrasena),
@@ -231,6 +233,17 @@ namespace SistemaBiblioteca.Controllers
             if (!ValidarSesion()) return RedirectToAction("Login");
             if (id == null) return NotFound();
 
+            // La ficha expone DNI, correo y deuda de la persona: solo la ve el personal.
+            // Un usuario común consulta lo suyo desde "Mi Perfil"; sin esta comprobación
+            // cualquiera con sesión podía recorrer ids y leer datos ajenos.
+            if (!ValidarRol(new[] { "Administrador", "Bibliotecario" }))
+            {
+                if (id == HttpContext.Session.GetInt32("UsuarioId")) return RedirectToAction(nameof(Perfil));
+
+                TempData["Error"] = "No tiene permisos para ver este usuario";
+                return RedirectToAction("Index", "Home");
+            }
+
             var usuario = await _context.Usuarios
               .Include(u => u.Rol)
               .Include(u => u.Prestamos).ThenInclude(p => p.Ejemplar).ThenInclude(e => e.Libro)
@@ -239,7 +252,8 @@ namespace SistemaBiblioteca.Controllers
 
             if (usuario == null) return NotFound();
 
-            ViewBag.PrestamosActivos = usuario.Prestamos.Count(p => p.EstadoPrestamo == "Activo");
+            // Un préstamo vencido sigue en poder del usuario: cuenta como activo.
+            ViewBag.PrestamosActivos = usuario.Prestamos.Count(p => p.EstadoPrestamo != EstadoPrestamo.Devuelto);
             ViewBag.SancionesPendientes = usuario.Sanciones.Count(s => s.EstadoSancion == "Pendiente");
             ViewBag.TotalSanciones = usuario.Sanciones.Where(s => s.EstadoSancion == "Pendiente").Sum(s => s.Monto);
 
