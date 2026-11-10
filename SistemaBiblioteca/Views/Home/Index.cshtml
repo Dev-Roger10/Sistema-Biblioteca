@@ -18,8 +18,28 @@
     <section class="welcome-banner mb-4">
         <span class="role-pill"><i class="fas fa-user-shield me-1"></i> @userRole</span>
         <h1>Hola, @userName</h1>
-        <p>Este es el resumen de tu biblioteca el día de hoy.</p>
+        <p>@(Model.EsPersonal ? "Resumen de la biblioteca" : "Resumen de tu actividad") · @DateTime.Now.ToString("dddd d 'de' MMMM", new System.Globalization.CultureInfo("es-PE"))</p>
     </section>
+
+    @if (Model.PrestamosVencidos > 0)
+    {
+        <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4" role="alert">
+            <span>
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                @if (Model.EsPersonal)
+                {
+                    <text>Hay <strong>@Model.PrestamosVencidos</strong> préstamo(s) vencido(s) que requieren seguimiento.</text>
+                }
+                else
+                {
+                    <text>Tienes <strong>@Model.PrestamosVencidos</strong> préstamo(s) vencido(s). Devuélvelos para evitar sanciones.</text>
+                }
+            </span>
+            <a asp-controller="Prestamos" asp-action="@(Model.EsPersonal ? "Index" : "MisPrestamos")" asp-route-filtro="@(Model.EsPersonal ? "vencidos" : null)" class="btn btn-sm btn-warning">
+                Ver préstamos <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+    }
 
     <!-- Estadísticas (datos reales; para lectores son solo las propias) -->
     <section class="row g-3 g-md-4 mb-5">

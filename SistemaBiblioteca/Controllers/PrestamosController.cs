@@ -85,8 +85,19 @@ namespace SistemaBiblioteca.Controllers
             // (Prestamo.EstaVencido) y no se persiste. Antes se guardaba aquí, lo que
             // además sacaba al préstamo del conteo de "Activo" y burlaba el límite.
             ViewBag.Filtro = filtro;
-            ViewBag.PrestamosActivos = resultado.Count(p => p.EstadoPrestamo != EstadoPrestamo.Devuelto);
-            ViewBag.PrestamosVencidos = resultado.Count(p => p.EstadoPrestamo != EstadoPrestamo.Devuelto && p.EstaVencido);
+            ViewBag.Buscar = buscar;
+            ViewBag.FechaDesde = fechaDesde?.ToString("yyyy-MM-dd");
+            ViewBag.FechaHasta = fechaHasta?.ToString("yyyy-MM-dd");
+
+            // Los totales son de TODA la tabla: no deben cambiar al aplicar filtros
+            // (antes se contaban sobre el resultado filtrado y salían cifras engañosas).
+            var ahora = DateTime.Now;
+            ViewBag.PrestamosActivos = await _context.Prestamos
+                .CountAsync(p => p.FechaDevolucionReal == null);
+            ViewBag.PrestamosVencidos = await _context.Prestamos
+                .CountAsync(p => p.FechaDevolucionReal == null && p.FechaDevolucionEsperada < ahora);
+            ViewBag.PrestamosDevueltos = await _context.Prestamos
+                .CountAsync(p => p.EstadoPrestamo == EstadoPrestamo.Devuelto);
 
             return View(resultado);
         }

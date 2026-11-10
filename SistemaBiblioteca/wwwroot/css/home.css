@@ -1,6 +1,7 @@
 /* Página de inicio - usa la paleta de colors.css / _Layout (color1..color5) */
 
 .home-page {
+    padding-top: 1.5rem;
     --h-ink: #0b2f4a;
     --h-muted: #5b7488;
     --h-line: rgba(13, 69, 107, 0.12);
@@ -20,7 +21,7 @@
     color: #fff;
     background: radial-gradient(1200px 500px at 85% -10%, rgba(8, 205, 255, 0.35), transparent 60%),
                 linear-gradient(135deg, var(--color1) 0%, var(--color2) 100%);
-    margin-top: -2rem; /* compensa el padding de .main-content */
+    margin-top: -1.5rem; /* compensa el padding superior de .home-page */
     padding: 5.5rem 0 7rem;
 }
 
@@ -450,3 +451,5 @@ body { overflow-x: hidden; }
 @media (min-width: 576px) and (max-width: 991.98px) {
     .hero { padding: 4rem 0 6rem; }
 }
+
+.main-content:has(.home-page) { padding-top: 0; }
