@@ -364,3 +364,10 @@ FodyWeavers.xsd
 
 # Privado
 SistemaBiblioteca/appsettings.json
+
+# GitHub Copilot (Visual Studio)
+CopilotSnapshots/
+CopilotIndices/
+copilot-chat/
+.github/copilot-instructions.md
+SistemaBiblioteca/appsettings.Production.json

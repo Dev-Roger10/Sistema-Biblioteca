@@ -3,14 +3,30 @@ using SistemaBiblioteca.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+// Servicios MVC
 builder.Services.AddControllersWithViews();
 
-// Configurar Entity Framework Core con SQL Server
-builder.Services.AddDbContext<BibliotecaContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("BibliotecaConnection")));
+// Cadena de conexiÃ³n: nunca se versiona en el repositorio.
+// Orden de resoluciÃ³n (la Ãºltima fuente gana):
+//   appsettings.json -> appsettings.{Entorno}.json -> user-secrets (solo Development)
+//   -> variable de entorno ConnectionStrings__BibliotecaConnection
+// Si falta, fallamos al arrancar con un mensaje claro en lugar de un error
+// crÃ­ptico la primera vez que se consulte la base de datos.
+var connectionString = builder.Configuration.GetConnectionString("BibliotecaConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "Falta la cadena de conexiÃ³n 'BibliotecaConnection'. " +
+        "En desarrollo use: dotnet user-secrets set \"ConnectionStrings:BibliotecaConnection\" \"<cadena>\". " +
+        "En producciÃ³n use la variable de entorno ConnectionStrings__BibliotecaConnection " +
+        "o un appsettings.Production.json fuera del control de versiones. " +
+        "Vea appsettings.example.json como referencia.");
+}
 
-// Configurar sesión para autenticación
+builder.Services.AddDbContext<BibliotecaContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// SesiÃ³n para autenticaciÃ³n
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -19,15 +35,15 @@ builder.Services.AddSession(options =>
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
-// Configurar políticas de autorización
+// Acceso al HttpContext fuera de los controladores
 builder.Services.AddHttpContextAccessor();
 
-// Agregar soporte para memoria caché
+// CachÃ© en memoria
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Pipeline HTTP
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -39,7 +55,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Habilitar sesión
+// La sesiÃ³n debe habilitarse antes de la autorizaciÃ³n y de los endpoints
 app.UseSession();
 
 app.UseAuthorization();
