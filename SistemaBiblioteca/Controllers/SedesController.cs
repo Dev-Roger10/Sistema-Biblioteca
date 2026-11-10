@@ -16,7 +16,7 @@ public SedesController(BibliotecaContext context, ILogger<SedesController> logge
             _logger = logger;
     }
 
-        // Validar sesi髇
+        // Validar sesi贸n
      private bool ValidarSesion()
         {
   return HttpContext.Session.GetInt32("UsuarioId") != null;
@@ -61,7 +61,7 @@ if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
       if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
      if (!ValidarRol(new[] { "Administrador" }))
     {
-         TempData["Error"] = "No tiene permisos para esta acci髇";
+         TempData["Error"] = "No tiene permisos para esta acci贸n";
                 return RedirectToAction("Index");
        }
 
@@ -76,7 +76,7 @@ return View();
 if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
            if (!ValidarRol(new[] { "Administrador" }))
     {
-TempData["Error"] = "No tiene permisos para esta acci髇";
+TempData["Error"] = "No tiene permisos para esta acci贸n";
    return RedirectToAction("Index");
            }
 
@@ -116,7 +116,7 @@ ModelState.AddModelError("NombreSede", "Esta sede ya existe");
     if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
  if (!ValidarRol(new[] { "Administrador" }))
          {
- TempData["Error"] = "No tiene permisos para esta acci髇";
+ TempData["Error"] = "No tiene permisos para esta acci贸n";
            return RedirectToAction("Index");
     }
 
@@ -136,7 +136,7 @@ ModelState.AddModelError("NombreSede", "Esta sede ya existe");
        if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
       if (!ValidarRol(new[] { "Administrador" }))
               {
-           TempData["Error"] = "No tiene permisos para esta acci髇";
+           TempData["Error"] = "No tiene permisos para esta acci贸n";
       return RedirectToAction("Index");
  }
 
@@ -177,7 +177,7 @@ TempData["Success"] = "Sede actualizada exitosamente";
    if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
     if (!ValidarRol(new[] { "Administrador" }))
            {
- TempData["Error"] = "No tiene permisos para esta acci髇";
+ TempData["Error"] = "No tiene permisos para esta acci贸n";
 return RedirectToAction("Index");
    }
 
@@ -197,7 +197,7 @@ if (sede == null) return NotFound();
    if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
             if (!ValidarRol(new[] { "Administrador" }))
          {
-TempData["Error"] = "No tiene permisos para esta acci髇";
+TempData["Error"] = "No tiene permisos para esta acci贸n";
          return RedirectToAction("Index");
        }
 

@@ -101,12 +101,12 @@ namespace SistemaBiblioteca.Controllers
 
             // Encabezado
             sb.AppendLine("REPORTE DE SANCIONES PENDIENTES");
-            sb.AppendLine("Fecha de generaci髇: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
+            sb.AppendLine("Fecha de generaci贸n: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
             sb.AppendLine("");
             sb.AppendLine("");
 
-            // T韙ulos de columnas
-            sb.AppendLine("DNI,Usuario,Email,Tipo Sanci髇,Monto,Fecha Sanci髇,Estado,Libro,Descripci髇,Monto Pagado,Monto Pendiente");
+            // T铆tulos de columnas
+            sb.AppendLine("DNI,Usuario,Email,Tipo Sanci贸n,Monto,Fecha Sanci贸n,Estado,Libro,Descripci贸n,Monto Pagado,Monto Pendiente");
 
             // Datos
             foreach (var sancion in sanciones)
@@ -135,8 +135,8 @@ namespace SistemaBiblioteca.Controllers
         {
             var sb = new StringBuilder();
 
-            // T韙ulos de columnas
-            sb.AppendLine("DNI,Usuario,Email,Tipo Sanci髇,Monto,Fecha Sanci髇,Estado,Libro,Descripci髇,Monto Pagado,Monto Pendiente");
+            // T铆tulos de columnas
+            sb.AppendLine("DNI,Usuario,Email,Tipo Sanci贸n,Monto,Fecha Sanci贸n,Estado,Libro,Descripci贸n,Monto Pagado,Monto Pendiente");
 
             // Datos
             foreach (var sancion in sanciones)
@@ -162,7 +162,7 @@ namespace SistemaBiblioteca.Controllers
         }
 
 
-        // M蒚ODOS AUXILIARES
+        // M脡TODOS AUXILIARES
 
 
         private bool ValidarSesion()

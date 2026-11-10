@@ -1,31 +1,31 @@
 @model IEnumerable<SistemaBiblioteca.Models.Categoria>
 
 @{
-    ViewData["Title"] = "Gestión de Categorías";
+    ViewData["Title"] = "GestiÃ³n de CategorÃ­as";
 }
 
 <div class="row mb-4">
     <div class="col-md-6">
    <h2 class="fw-bold color1">
-            <i class="fas fa-tags color2"></i> Gestión de Categorías
+            <i class="fas fa-tags color2"></i> GestiÃ³n de CategorÃ­as
         </h2>
-  <p class="color2">Administra las categorías de libros</p>
+  <p class="color2">Administra las categorÃ­as de libros</p>
     </div>
     <div class="col-md-6 text-end">
         <a asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Nueva Categoría
+            <i class="fas fa-plus"></i> Nueva CategorÃ­a
     </a>
     </div>
 </div>
 
-<!-- Filtro de búsqueda -->
+<!-- Filtro de bÃºsqueda -->
 <div class="card mb-4 border-0 shadow-sm">
     <div class="card-body">
      <form method="get" asp-action="Index" class="row g-3">
       <div class="col-md-8">
      <label class="form-label fw-semibold color2">Buscar</label>
       <input type="text" name="buscar" class="form-control"
-       placeholder="Nombre de categoría..." value="@ViewBag.Buscar">
+       placeholder="Nombre de categorÃ­a..." value="@ViewBag.Buscar">
    </div>
      <div class="col-md-4 d-flex align-items-end">
               <button type="submit" class="btn btn-primary w-100">
@@ -36,7 +36,7 @@
     </div>
 </div>
 
-<!-- Tabla de categorías -->
+<!-- Tabla de categorÃ­as -->
 <div class="card border-0 shadow-sm">
     <div class="card-body">
         <div class="table-responsive">
@@ -97,7 +97,7 @@
        <tr>
       <td colspan="5" class="text-center py-5">
             <i class="fas fa-inbox fa-3x color2 mb-3"></i>
-          <p class="color2">No se encontraron categorías</p>
+          <p class="color2">No se encontraron categorÃ­as</p>
            </td>
    </tr>
              }
@@ -107,14 +107,14 @@
     </div>
 </div>
 
-<!-- Estadísticas -->
+<!-- EstadÃ­sticas -->
 <div class="row g-3 mt-4">
     <div class="col-md-4">
         <div class="card border-0 shadow-sm">
             <div class="card-body text-center">
   <i class="fas fa-tags fa-2x mb-2" style="color: var(--color-2);"></i>
                 <h4 class="fw-bold color1 mb-0">@ViewBag.TotalCategorias</h4>
-         <small class="color2">Total de Categorías</small>
+         <small class="color2">Total de CategorÃ­as</small>
   </div>
         </div>
     </div>

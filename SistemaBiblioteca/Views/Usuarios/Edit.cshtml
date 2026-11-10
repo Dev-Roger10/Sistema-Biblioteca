@@ -17,9 +17,9 @@
   @Html.AntiForgeryToken()
   <input type="hidden" asp-for="IdUsuario" />
 
-      <!-- Información Personal -->
+      <!-- InformaciÃ³n Personal -->
               <h5 class="color1 mb-3">
-     <i class="fas fa-user color2"></i> Información Personal
+     <i class="fas fa-user color2"></i> InformaciÃ³n Personal
       </h5>
 
          <div class="row g-3 mb-3">
@@ -42,7 +42,7 @@
  <span asp-validation-for="DNI" class="text-danger small"></span>
        </div>
    <div class="col-md-4">
-     <label asp-for="Telefono" class="form-label fw-semibold color2">Teléfono</label>
+     <label asp-for="Telefono" class="form-label fw-semibold color2">TelÃ©fono</label>
                 <input asp-for="Telefono" class="form-control">
      </div>
         <div class="col-md-4">
@@ -53,15 +53,15 @@
       </div>
 
                 <div class="mb-3">
-   <label asp-for="Direccion" class="form-label fw-semibold color2">Dirección</label>
+   <label asp-for="Direccion" class="form-label fw-semibold color2">DirecciÃ³n</label>
                 <input asp-for="Direccion" class="form-control">
   </div>
 
         <hr class="my-4">
 
-    <!-- Configuración de Rol -->
+    <!-- ConfiguraciÃ³n de Rol -->
           <h5 class="color1 mb-3">
-  <i class="fas fa-shield-alt color2"></i> Configuración de Rol
+  <i class="fas fa-shield-alt color2"></i> ConfiguraciÃ³n de Rol
    </h5>
 
            <div class="row g-3 mb-3">
@@ -88,32 +88,32 @@
 
            <hr class="my-4">
 
-           <!-- Cambio de Contraseña -->
+           <!-- Cambio de ContraseÃ±a -->
               <h5 class="color1 mb-3">
-          <i class="fas fa-lock color2"></i> Cambio de Contraseña (Opcional)
+          <i class="fas fa-lock color2"></i> Cambio de ContraseÃ±a (Opcional)
        </h5>
 
       <div class="alert alert-info border-0" style="background: linear-gradient(135deg, rgba(8,137,255,0.1) 0%, rgba(8,207,255,0.1) 100%); border-left: 4px solid var(--color-2);">
-      <i class="fas fa-info-circle color2"></i> Deja en blanco si no deseas cambiar la contraseña
+      <i class="fas fa-info-circle color2"></i> Deja en blanco si no deseas cambiar la contraseÃ±a
        </div>
 
         <div class="row g-3 mb-4">
           <div class="col-md-6">
-     <label class="form-label fw-semibold color2">Nueva Contraseña</label>
-                <input name="nuevaContrasena" type="password" class="form-control" placeholder="••••••••">
-            <small class="text-muted">Mínimo 6 caracteres</small>
+     <label class="form-label fw-semibold color2">Nueva ContraseÃ±a</label>
+                <input name="nuevaContrasena" type="password" class="form-control" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+            <small class="text-muted">MÃ­nimo 6 caracteres</small>
     </div>
     <div class="col-md-6">
-      <label class="form-label fw-semibold color2">Confirmar Contraseña</label>
-        <input name="confirmarContrasena" type="password" class="form-control" placeholder="••••••••">
+      <label class="form-label fw-semibold color2">Confirmar ContraseÃ±a</label>
+        <input name="confirmarContrasena" type="password" class="form-control" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
     </div>
              </div>
 
-     <!-- Información Adicional (Solo lectura) -->
+     <!-- InformaciÃ³n Adicional (Solo lectura) -->
   <hr class="my-4">
 
                 <h5 class="color1 mb-3">
-    <i class="fas fa-info-circle color2"></i> Información del Sistema
+    <i class="fas fa-info-circle color2"></i> InformaciÃ³n del Sistema
      </h5>
 
         <div class="row g-3">
@@ -122,14 +122,14 @@
           <strong class="color1">@Model.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</strong>
             </div>
      <div class="col-md-6">
-    <small class="text-muted d-block">Último Acceso</small>
+    <small class="text-muted d-block">Ãšltimo Acceso</small>
        <strong class="color1">@(Model.UltimoAcceso?.ToString("dd/MM/yyyy HH:mm") ?? "Nunca")</strong>
       </div>
      </div>
 
       <hr class="my-4">
 
-       <!-- Botones de Acción -->
+       <!-- Botones de AcciÃ³n -->
           <div class="d-grid gap-2">
      <button type="submit" class="btn btn-primary btn-lg">
            <i class="fas fa-save"></i> Guardar Cambios
@@ -150,22 +150,22 @@
     }
 
     <script>
-     // Validar que las contraseñas coincidan
+     // Validar que las contraseÃ±as coincidan
      document.querySelector('form').addEventListener('submit', function (e) {
         const nuevaContrasena = document.querySelector('input[name="nuevaContrasena"]').value;
      const confirmarContrasena = document.querySelector('input[name="confirmarContrasena"]').value;
 
-  // Si hay contraseña nueva, validar que coincida
+  // Si hay contraseÃ±a nueva, validar que coincida
       if (nuevaContrasena && nuevaContrasena !== confirmarContrasena) {
     e.preventDefault();
-        alert('Las contraseñas no coinciden');
+        alert('Las contraseÃ±as no coinciden');
       document.querySelector('input[name="confirmarContrasena"]').focus();
           }
 
-            // Si hay una contraseña pero no la otra
+            // Si hay una contraseÃ±a pero no la otra
     if ((nuevaContrasena && !confirmarContrasena) || (!nuevaContrasena && confirmarContrasena)) {
         e.preventDefault();
-   alert('Debes ingresar ambas contraseñas o dejar ambas en blanco');
+   alert('Debes ingresar ambas contraseÃ±as o dejar ambas en blanco');
     return false;
          }
         });

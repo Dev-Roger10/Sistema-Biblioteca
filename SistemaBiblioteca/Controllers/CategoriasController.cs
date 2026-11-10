@@ -16,7 +16,7 @@ namespace SistemaBiblioteca.Controllers
             _logger = logger;
         }
 
-        // Validar sesión
+        // Validar sesiÃ³n
         private bool ValidarSesion()
         {
             return HttpContext.Session.GetInt32("UsuarioId") != null;
@@ -30,7 +30,7 @@ namespace SistemaBiblioteca.Controllers
             return rolesPermitidos.Contains(rol);
         }
 
-        // GET: Index - Listar categorías
+        // GET: Index - Listar categorÃ­as
         public async Task<IActionResult> Index(string buscar)
         {
             if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
@@ -61,7 +61,7 @@ namespace SistemaBiblioteca.Controllers
             if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
             if (!ValidarRol(new[] { "Administrador" }))
             {
-                TempData["Error"] = "No tiene permisos para esta acción";
+                TempData["Error"] = "No tiene permisos para esta acciÃ³n";
                 return RedirectToAction("Index");
             }
 
@@ -76,16 +76,16 @@ namespace SistemaBiblioteca.Controllers
             if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
             if (!ValidarRol(new[] { "Administrador" }))
             {
-                TempData["Error"] = "No tiene permisos para esta acción";
+                TempData["Error"] = "No tiene permisos para esta acciÃ³n";
                 return RedirectToAction("Index");
             }
 
             try
             {
-                // Validar que no exista categoría con el mismo nombre
+                // Validar que no exista categorÃ­a con el mismo nombre
                 if (await _context.Categorias.AnyAsync(c => c.NombreCategoria == categoria.NombreCategoria))
                 {
-                    ModelState.AddModelError("NombreCategoria", "Esta categoría ya existe");
+                    ModelState.AddModelError("NombreCategoria", "Esta categorÃ­a ya existe");
                     return View(categoria);
                 }
 
@@ -95,8 +95,8 @@ namespace SistemaBiblioteca.Controllers
                     _context.Categorias.Add(categoria);
                     await _context.SaveChangesAsync();
 
-                    _logger.LogInformation($"Categoría creada: {categoria.NombreCategoria}");
-                    TempData["Success"] = "Categoría creada exitosamente";
+                    _logger.LogInformation($"CategorÃ­a creada: {categoria.NombreCategoria}");
+                    TempData["Success"] = "CategorÃ­a creada exitosamente";
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -104,8 +104,8 @@ namespace SistemaBiblioteca.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al crear categoría");
-                TempData["Error"] = "Error al crear la categoría";
+                _logger.LogError(ex, "Error al crear categorÃ­a");
+                TempData["Error"] = "Error al crear la categorÃ­a";
                 return View(categoria);
             }
         }
@@ -116,7 +116,7 @@ namespace SistemaBiblioteca.Controllers
             if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
             if (!ValidarRol(new[] { "Administrador" }))
             {
-                TempData["Error"] = "No tiene permisos para esta acción";
+                TempData["Error"] = "No tiene permisos para esta acciÃ³n";
                 return RedirectToAction("Index");
             }
 
@@ -136,7 +136,7 @@ namespace SistemaBiblioteca.Controllers
             if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
             if (!ValidarRol(new[] { "Administrador" }))
             {
-                TempData["Error"] = "No tiene permisos para esta acción";
+                TempData["Error"] = "No tiene permisos para esta acciÃ³n";
                 return RedirectToAction("Index");
             }
 
@@ -144,10 +144,10 @@ namespace SistemaBiblioteca.Controllers
 
             try
             {
-                // Validar que no exista otra categoría con el mismo nombre
+                // Validar que no exista otra categorÃ­a con el mismo nombre
                 if (await _context.Categorias.AnyAsync(c => c.NombreCategoria == categoria.NombreCategoria && c.IdCategoria != id))
                 {
-                    ModelState.AddModelError("NombreCategoria", "Esta categoría ya existe");
+                    ModelState.AddModelError("NombreCategoria", "Esta categorÃ­a ya existe");
                     return View(categoria);
                 }
 
@@ -156,8 +156,8 @@ namespace SistemaBiblioteca.Controllers
                     _context.Update(categoria);
                     await _context.SaveChangesAsync();
 
-                    _logger.LogInformation($"Categoría actualizada: {categoria.NombreCategoria}");
-                    TempData["Success"] = "Categoría actualizada exitosamente";
+                    _logger.LogInformation($"CategorÃ­a actualizada: {categoria.NombreCategoria}");
+                    TempData["Success"] = "CategorÃ­a actualizada exitosamente";
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -165,8 +165,8 @@ namespace SistemaBiblioteca.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al actualizar categoría");
-                TempData["Error"] = "Error al actualizar la categoría";
+                _logger.LogError(ex, "Error al actualizar categorÃ­a");
+                TempData["Error"] = "Error al actualizar la categorÃ­a";
                 return View(categoria);
             }
         }
@@ -177,7 +177,7 @@ namespace SistemaBiblioteca.Controllers
             if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
             if (!ValidarRol(new[] { "Administrador" }))
             {
-                TempData["Error"] = "No tiene permisos para esta acción";
+                TempData["Error"] = "No tiene permisos para esta acciÃ³n";
                 return RedirectToAction("Index");
             }
 
@@ -197,7 +197,7 @@ namespace SistemaBiblioteca.Controllers
             if (!ValidarSesion()) return RedirectToAction("Login", "Usuarios");
             if (!ValidarRol(new[] { "Administrador" }))
             {
-                TempData["Error"] = "No tiene permisos para esta acción";
+                TempData["Error"] = "No tiene permisos para esta acciÃ³n";
                 return RedirectToAction("Index");
             }
 
@@ -206,24 +206,24 @@ namespace SistemaBiblioteca.Controllers
                 var categoria = await _context.Categorias.FindAsync(id);
                 if (categoria == null) return NotFound();
 
-                // Verificar si hay libros con esta categoría
+                // Verificar si hay libros con esta categorÃ­a
                 if (await _context.Libros.AnyAsync(l => l.IdCategoria == id))
                 {
-                    TempData["Error"] = "No se puede eliminar: existen libros con esta categoría";
+                    TempData["Error"] = "No se puede eliminar: existen libros con esta categorÃ­a";
                     return RedirectToAction(nameof(Index));
                 }
 
                 _context.Categorias.Remove(categoria);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Categoría eliminada: {categoria.NombreCategoria}");
-                TempData["Success"] = "Categoría eliminada exitosamente";
+                _logger.LogInformation($"CategorÃ­a eliminada: {categoria.NombreCategoria}");
+                TempData["Success"] = "CategorÃ­a eliminada exitosamente";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al eliminar categoría");
-                TempData["Error"] = "Error al eliminar la categoría";
+                _logger.LogError(ex, "Error al eliminar categorÃ­a");
+                TempData["Error"] = "Error al eliminar la categorÃ­a";
                 return RedirectToAction(nameof(Index));
             }
         }

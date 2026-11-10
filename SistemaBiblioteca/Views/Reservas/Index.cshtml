@@ -9,11 +9,11 @@
         <h2 class="fw-bold color1">
 <i class="fas fa-bookmark color2"></i> Gestionar Reservas
      </h2>
-        <p class="color2">Panel de administración de reservas de la biblioteca</p>
+        <p class="color2">Panel de administraciÃ³n de reservas de la biblioteca</p>
     </div>
 </div>
 
-<!-- Estadísticas -->
+<!-- EstadÃ­sticas -->
 <div class="row g-3 mb-4">
     <div class="col-md-6">
         <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #FFE066 0%, #FFD43B 100%);">
@@ -60,7 +60,7 @@
             <div class="col-md-6">
    <label class="form-label fw-semibold">Buscar por usuario o libro:</label>
           <div class="input-group">
-      <input type="text" name="buscar" class="form-control" placeholder="DNI, nombre o título..." value="@ViewBag.Buscar">
+      <input type="text" name="buscar" class="form-control" placeholder="DNI, nombre o tÃ­tulo..." value="@ViewBag.Buscar">
   <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
     </div>
           </div>
@@ -138,7 +138,7 @@
              <i class="fas fa-check"></i> Confirmar
          </a>
       }
-    <form asp-action="Cancelar" method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro de cancelar esta reserva?')">
+    <form asp-action="Cancelar" method="post" class="d-inline" onsubmit="return confirm('Â¿EstÃ¡s seguro de cancelar esta reserva?')">
   @Html.AntiForgeryToken()
        <input type="hidden" name="id" value="@reserva.IdReserva">
   <input type="hidden" name="motivo" value="Cancelada por administrador">

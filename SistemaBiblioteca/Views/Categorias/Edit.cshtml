@@ -1,7 +1,7 @@
 @model SistemaBiblioteca.Models.Categoria
 
 @{
-    ViewData["Title"] = "Editar Categoría";
+    ViewData["Title"] = "Editar CategorÃ­a";
 }
 
 <div class="row justify-content-center">
@@ -9,7 +9,7 @@
         <div class="card border-0 shadow">
             <div class="card-header bg-color2 text-white">
      <h3 class="mb-0">
-         <i class="fas fa-edit"></i> Editar Categoría
+         <i class="fas fa-edit"></i> Editar CategorÃ­a
     </h3>
          </div>
        <div class="card-body p-4">
@@ -19,9 +19,9 @@
        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
       <div class="mb-3">
-        <label asp-for="NombreCategoria" class="form-label fw-semibold color2">Nombre de la Categoría *</label>
+        <label asp-for="NombreCategoria" class="form-label fw-semibold color2">Nombre de la CategorÃ­a *</label>
         <input asp-for="NombreCategoria" class="form-control form-control-lg"
-        placeholder="Ej: Ficción, No ficción, Tecnología..." required>
+        placeholder="Ej: FicciÃ³n, No ficciÃ³n, TecnologÃ­a..." required>
            <span asp-validation-for="NombreCategoria" class="text-danger small"></span>
           </div>
 
@@ -29,7 +29,7 @@
           <div class="form-check">
            <input asp-for="Activo" type="checkbox" class="form-check-input" id="activo">
    <label class="form-check-label color1" for="activo">
-           Categoría Activa
+           CategorÃ­a Activa
             </label>
               </div>
            </div>
