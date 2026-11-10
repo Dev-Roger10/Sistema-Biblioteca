@@ -1,199 +1,272 @@
-﻿@{
-    ViewData["Title"] = "Dashboard";
+﻿@model SistemaBiblioteca.Models.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Inicio";
     var userId = Context.Session.GetInt32("UsuarioId");
     var userRole = Context.Session.GetString("UsuarioRol");
+    var userName = Context.Session.GetString("UsuarioNombre");
+    var esStaff = userRole == "Administrador" || userRole == "Bibliotecario";
 }
 
-<div class="row mb-4">
-    <div class="col-12">
-      <h1 class="display-5 fw-bold mb-3 color1">
-       <i class="fas fa-home color3"></i>
-   Bienvenido al Sistema de Gestión de Biblioteca
-      </h1>
-        <p class="lead color2">Panel de control y estadísticas</p>
-    </div>
-</div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
 
+<div class="home-page">
 @if (userId != null)
 {
-    <!-- Estadísticas -->
-    <div class="row g-4 mb-5">
-   <div class="col-md-3">
-    <div class="card stats-card">
-  <div class="card-body position-relative">
-         <i class="fas fa-book stats-icon color2"></i>
-   <h6 class="color2 mb-2">Total Libros</h6>
-         <h2 class="fw-bold color1 mb-0">1,250</h2>
-        <small class="text-success"><i class="fas fa-arrow-up"></i> +12 este mes</small>
-  </div>
- </div>
-        </div>
-   <div class="col-md-3">
-    <div class="card stats-card success">
-        <div class="card-body position-relative">
-         <i class="fas fa-exchange-alt stats-icon text-success"></i>
-  <h6 class="color2 mb-2">Préstamos Activos</h6>
-         <h2 class="fw-bold color1 mb-0">348</h2>
- <small class="color2">en este momento</small>
-       </div>
-    </div>
-        </div>
-        <div class="col-md-3">
-    <div class="card stats-card warning">
-        <div class="card-body position-relative">
-    <i class="fas fa-bookmark stats-icon text-warning"></i>
-  <h6 class="color2 mb-2">Reservas Pendientes</h6>
-     <h2 class="fw-bold color1 mb-0">89</h2>
-      <small class="text-warning"><i class="fas fa-clock"></i> Requieren atención</small>
-      </div>
-      </div>
-        </div>
-   <div class="col-md-3">
-            <div class="card stats-card danger">
-    <div class="card-body position-relative">
-         <i class="fas fa-exclamation-triangle stats-icon text-danger"></i>
- <h6 class="color2 mb-2">Préstamos Vencidos</h6>
-  <h2 class="fw-bold color1 mb-0">23</h2>
-        <small class="text-danger"><i class="fas fa-arrow-down"></i> Acción requerida</small>
-      </div>
-   </div>
-        </div>
-    </div>
+    <!-- ========== DASHBOARD ========== -->
+    <section class="welcome-banner mb-4">
+        <span class="role-pill"><i class="fas fa-user-shield me-1"></i> @userRole</span>
+        <h1>Hola, @userName</h1>
+        <p>Este es el resumen de tu biblioteca el día de hoy.</p>
+    </section>
 
-    <!-- Acciones Rápidas -->
-    <div class="row mb-5">
-<div class="col-12">
-          <h3 class="mb-4 color1"><i class="fas fa-bolt color3"></i> Acciones Rápidas</h3>
-   </div>
+    <!-- Estadísticas (datos reales; para lectores son solo las propias) -->
+    <section class="row g-3 g-md-4 mb-5">
+        <div class="col-6 col-lg-3">
+            <div class="metric">
+                <div class="m-icon c-blue"><i class="fas @(Model.EsPersonal ? "fa-book" : "fa-hand-holding")"></i></div>
+                <div>
+                    <div class="m-val">@(Model.EsPersonal ? Model.LibrosActivos : Model.PrestamosActivos)</div>
+                    <div class="m-lbl">@(Model.EsPersonal ? "Libros en catálogo" : "Mis préstamos activos")</div>
+                    @if (Model.EsPersonal)
+                    {
+                        <div class="m-note text-success"><i class="fas fa-arrow-up"></i> @Model.LibrosNuevosMes este mes</div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="metric">
+                <div class="m-icon c-teal"><i class="fas fa-exchange-alt"></i></div>
+                <div>
+                    <div class="m-val">@(Model.EsPersonal ? Model.PrestamosActivos : Model.EjemplaresDisponibles)</div>
+                    <div class="m-lbl">@(Model.EsPersonal ? "Préstamos activos" : "Ejemplares disponibles")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="metric">
+                <div class="m-icon c-amber"><i class="fas fa-bookmark"></i></div>
+                <div>
+                    <div class="m-val">@Model.ReservasPendientes</div>
+                    <div class="m-lbl">@(Model.EsPersonal ? "Reservas pendientes" : "Mis reservas pendientes")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="metric">
+                <div class="m-icon c-red"><i class="fas @(Model.EsPersonal ? "fa-exclamation-triangle" : "fa-gavel")"></i></div>
+                <div>
+                    <div class="m-val">@(Model.EsPersonal ? Model.PrestamosVencidos : Model.SancionesPendientes)</div>
+                    <div class="m-lbl">@(Model.EsPersonal ? "Préstamos vencidos" : "Sanciones pendientes")</div>
+                    @if (Model.EsPersonal && Model.PrestamosVencidos > 0)
+                    {
+                        <div class="m-note text-danger">Acción requerida</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
 
-        @if (userRole == "Administrador" || userRole == "Bibliotecario")
-{
-      <div class="col-md-3 mb-3">
-  <a asp-controller="Prestamos" asp-action="Create" class="text-decoration-none">
-           <div class="card h-100 text-center hover-card">
-          <div class="card-body">
-           <i class="fas fa-plus-circle fa-3x color2 mb-3"></i>
-           <h5 class="card-title color1">Registrar Préstamo</h5>
-         <p class="card-text color2">Nuevo préstamo de libro</p>
-  </div>
-     </div>
-  </a>
-     </div>
-   <div class="col-md-3 mb-3">
-       <a asp-controller="Prestamos" asp-action="Index" class="text-decoration-none">
- <div class="card h-100 text-center hover-card">
- <div class="card-body">
-<i class="fas fa-undo fa-3x text-success mb-3"></i>
-      <h5 class="card-title color1">Devoluciones</h5>
-  <p class="card-text color2">Procesar devoluciones</p>
-     </div>
-     </div>
-         </a>
-   </div>
-  <div class="col-md-3 mb-3">
-        <a asp-controller="Libros" asp-action="Create" class="text-decoration-none">
-        <div class="card h-100 text-center hover-card">
-            <div class="card-body">
-    <i class="fas fa-book-medical fa-3x color2 mb-3"></i>
-  <h5 class="card-title color1">Agregar Libro</h5>
-      <p class="card-text color2">Nuevo libro al catálogo</p>
-</div>
-</div>
- </a>
-            </div>
-    <div class="col-md-3 mb-3">
-            <a asp-controller="Sanciones" asp-action="Index" class="text-decoration-none">
-        <div class="card h-100 text-center hover-card">
-          <div class="card-body">
- <i class="fas fa-dollar-sign fa-3x text-warning mb-3"></i>
-   <h5 class="card-title color1">Gestionar Sanciones</h5>
-                 <p class="card-text color2">Pagos y multas</p>
-    </div>
-         </div>
- </a>
-            </div>
-  }
-        else
-        {
-    <div class="col-md-4 mb-3">
-     <a asp-controller="Libros" asp-action="Catalogo" class="text-decoration-none">
-      <div class="card h-100 text-center hover-card">
-    <div class="card-body">
-     <i class="fas fa-search fa-3x color2 mb-3"></i>
-        <h5 class="card-title color1">Buscar Libros</h5>
-     <p class="card-text color2">Explora nuestro catálogo</p>
-           </div>
-            </div>
-             </a>
-            </div>
-    <div class="col-md-4 mb-3">
-         <a asp-controller="Reservas" asp-action="MisReservas" class="text-decoration-none">
-        <div class="card h-100 text-center hover-card">
-     <div class="card-body">
-   <i class="fas fa-bookmark fa-3x text-success mb-3"></i>
-         <h5 class="card-title color1">Mis Reservas</h5>
-        <p class="card-text color2">Ver mis reservas activas</p>
-               </div>
-     </div>
-          </a>
-            </div>
-     <div class="col-md-4 mb-3">
-            <a asp-controller="Prestamos" asp-action="MisPrestamos" class="text-decoration-none">
-       <div class="card h-100 text-center hover-card">
-    <div class="card-body">
-    <i class="fas fa-hand-holding fa-3x color2 mb-3"></i>
-           <h5 class="card-title color1">Mis Préstamos</h5>
-         <p class="card-text color2">Estado de mis libros</p>
-  </div>
-             </div>
-            </a>
-            </div>
-        }
-  </div>
+    <!-- Acciones rápidas -->
+    <section class="mb-5">
+        <div class="dash-title"><i class="fas fa-bolt"></i> Acciones rápidas</div>
+        <div class="row g-4">
+            @if (esStaff)
+            {
+                <div class="col-sm-6 col-lg-3">
+                    <a asp-controller="Prestamos" asp-action="Create" class="action-tile">
+                        <i class="fas fa-arrow-right a-arrow"></i>
+                        <div class="a-icon"><i class="fas fa-plus"></i></div>
+                        <h5>Registrar préstamo</h5>
+                        <p>Nuevo préstamo de libro</p>
+                    </a>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <a asp-controller="Prestamos" asp-action="Index" class="action-tile">
+                        <i class="fas fa-arrow-right a-arrow"></i>
+                        <div class="a-icon alt"><i class="fas fa-undo"></i></div>
+                        <h5>Devoluciones</h5>
+                        <p>Procesar devoluciones</p>
+                    </a>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <a asp-controller="Libros" asp-action="Create" class="action-tile">
+                        <i class="fas fa-arrow-right a-arrow"></i>
+                        <div class="a-icon"><i class="fas fa-book-medical"></i></div>
+                        <h5>Agregar libro</h5>
+                        <p>Nuevo libro al catálogo</p>
+                    </a>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <a asp-controller="Sanciones" asp-action="Index" class="action-tile">
+                        <i class="fas fa-arrow-right a-arrow"></i>
+                        <div class="a-icon warm"><i class="fas fa-gavel"></i></div>
+                        <h5>Gestionar sanciones</h5>
+                        <p>Pagos y multas</p>
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4">
+                    <a asp-controller="Libros" asp-action="Catalogo" class="action-tile">
+                        <i class="fas fa-arrow-right a-arrow"></i>
+                        <div class="a-icon"><i class="fas fa-search"></i></div>
+                        <h5>Buscar libros</h5>
+                        <p>Explora nuestro catálogo</p>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a asp-controller="Reservas" asp-action="MisReservas" class="action-tile">
+                        <i class="fas fa-arrow-right a-arrow"></i>
+                        <div class="a-icon alt"><i class="fas fa-bookmark"></i></div>
+                        <h5>Mis reservas</h5>
+                        <p>Ver mis reservas activas</p>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a asp-controller="Prestamos" asp-action="MisPrestamos" class="action-tile">
+                        <i class="fas fa-arrow-right a-arrow"></i>
+                        <div class="a-icon"><i class="fas fa-hand-holding"></i></div>
+                        <h5>Mis préstamos</h5>
+                        <p>Estado de mis libros</p>
+                    </a>
+                </div>
+            }
+        </div>
+    </section>
 }
 else
 {
-    <!-- Vista para usuarios no autenticados -->
-    <div class="row justify-content-center">
-      <div class="col-md-8 text-center">
-       <div class="card shadow-lg">
-     <div class="card-body p-5">
-         <i class="fas fa-book-open fa-5x color3 mb-4"></i>
-        <h2 class="mb-4 color1">Bienvenido a la Biblioteca Universitaria</h2>
-     <p class="lead color2 mb-4">
-       Accede a miles de libros, gestiona tus préstamos y reservas de manera fácil y rápida.
-            </p>
-           <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-       <a asp-controller="Usuarios" asp-action="Login" class="btn btn-primary btn-lg px-5">
-   <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-     </a>
-   <a asp-controller="Usuarios" asp-action="Registro" class="btn btn-outline-primary btn-lg px-5">
-    <i class="fas fa-user-plus"></i> Registrarse
-      </a>
- </div>
-    </div>
-    </div>
-        </div>
-    </div>
+    <!-- ========== LANDING (sin sesión) ========== -->
+    <section class="hero full-bleed">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <span class="hero-eyebrow"><span class="dot"></span> Biblioteca Universitaria</span>
+                    <h1>Tu biblioteca,<br /><span class="accent">siempre a un clic</span></h1>
+                    <p class="lead-text mb-0">
+                        Explora el catálogo, reserva libros y controla tus préstamos de forma rápida,
+                        desde tu computadora o tu móvil.
+                    </p>
+                </div>
 
-    <div class="row mt-5">
-        <div class="col-md-4 text-center mb-4">
-            <i class="fas fa-book fa-4x color3 mb-3"></i>
-       <h4 class="color1">Amplio Catálogo</h4>
- <p class="color2">Miles de libros de todas las categorías a tu disposición</p>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="hero-visual">
+                        <div class="glass-card gc-1">
+                            <div class="gc-icon"><i class="fas fa-book-open"></i></div>
+                            <strong>Catálogo completo</strong>
+                            <span>Busca por título, autor o categoría</span>
+                        </div>
+                        <div class="glass-card gc-2">
+                            <div class="gc-icon"><i class="fas fa-bookmark"></i></div>
+                            <strong>Reserva en línea</strong>
+                            <span>Aparta tu libro sin hacer fila</span>
+                        </div>
+                        <div class="glass-card gc-3">
+                            <div class="gc-icon"><i class="fas fa-bell"></i></div>
+                            <strong>Avisos de devolución</strong>
+                            <span>Nunca olvides una fecha límite</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-4 text-center mb-4">
-            <i class="fas fa-clock fa-4x text-success mb-3"></i>
-   <h4 class="color1">Disponibilidad 24/7</h4>
-            <p class="color2">Consulta y reserva libros en cualquier momento</p>
+    </section>
+
+    <!-- Franja de datos reales -->
+    <section class="stat-strip mb-5">
+        <div class="strip">
+            <div class="row g-0">
+                <div class="col-6 col-md-3 strip-item">
+                    <div class="num">@Model.LibrosActivos</div>
+                    <div class="lbl"><i class="fas fa-book"></i> Libros en catálogo</div>
+                </div>
+                <div class="col-6 col-md-3 strip-item">
+                    <div class="num">@Model.EjemplaresDisponibles</div>
+                    <div class="lbl"><i class="fas fa-check-circle"></i> Ejemplares disponibles</div>
+                </div>
+                <div class="col-6 col-md-3 strip-item">
+                    <div class="num">@Model.Categorias</div>
+                    <div class="lbl"><i class="fas fa-tags"></i> Categorías</div>
+                </div>
+                <div class="col-6 col-md-3 strip-item">
+                    <div class="num">@Model.Sedes</div>
+                    <div class="lbl"><i class="fas fa-building"></i> Sedes</div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-4 text-center mb-4">
-       <i class="fas fa-mobile-alt fa-4x color3 mb-3"></i>
-            <h4 class="color1">Acceso Digital</h4>
-     <p class="color2">Gestiona todo desde tu computadora o móvil</p>
- </div>
-    </div>
+    </section>
+
+    <!-- Características -->
+    <section class="mb-5 pt-3">
+        <div class="section-head">
+            <span class="kicker">Qué ofrecemos</span>
+            <h2>Todo lo que necesitas en un solo lugar</h2>
+            <p>Una plataforma pensada para estudiantes, docentes y personal de la biblioteca.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-book"></i></div>
+                    <h4>Catálogo en línea</h4>
+                    <p>Busca libros por título, autor o categoría y revisa su disponibilidad.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-clock"></i></div>
+                    <h4>Reservas y préstamos</h4>
+                    <p>Reserva tu libro y sigue el estado de tus préstamos desde tu cuenta.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+                    <h4>Avisos y sanciones</h4>
+                    <p>Recibe notificaciones y consulta tus sanciones en un solo lugar.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cómo funciona -->
+    <section class="steps-wrap mb-5">
+        <div class="section-head">
+            <span class="kicker">Cómo funciona</span>
+            <h2>Empieza en tres pasos</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 step">
+                <div class="badge-num">1</div>
+                <h5>Crea tu cuenta</h5>
+                <p>Regístrate con tus datos de la universidad.</p>
+            </div>
+            <div class="col-md-4 step">
+                <div class="badge-num">2</div>
+                <h5>Busca y reserva</h5>
+                <p>Encuentra tu libro y resérvalo en segundos.</p>
+            </div>
+            <div class="col-md-4 step">
+                <div class="badge-num">3</div>
+                <h5>Recógelo y disfruta</h5>
+                <p>Retíralo en la sede y sigue tu préstamo en línea.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Llamado final -->
+    <section class="cta-band mb-4">
+        <h3>¿Listo para empezar?</h3>
+        <p class="mb-4">Inicia sesión o crea tu cuenta y accede al catálogo completo.</p>
+        <a asp-controller="Usuarios" asp-action="Registro" class="btn-hero solid">
+            <i class="fas fa-user-plus"></i> Registrarme ahora
+        </a>
+    </section>
 }
+</div>
 
 @section Scripts {
     <script>
