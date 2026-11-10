@@ -1,0 +1,193 @@
+@model SistemaBiblioteca.Models.Usuario
+
+@*
+    Ficha de un usuario para el personal de la biblioteca.
+    ViewBag: PrestamosActivos (int), SancionesPendientes (int), TotalSanciones (decimal).
+    Nunca se muestra la contraseña ni su hash.
+*@
+
+@{
+    ViewData["Title"] = "Detalle de Usuario";
+
+    string rol = Context.Session.GetString("UsuarioRol") ?? string.Empty;
+    bool esAdmin = rol == "Administrador";
+    bool esPersonal = esAdmin || rol == "Bibliotecario";
+
+    // Se muestran solo los últimos movimientos; el historial completo está en Préstamos.
+    var prestamos = Model.Prestamos?.OrderByDescending(p => p.FechaPrestamo).Take(10).ToList()
+                    ?? new List<SistemaBiblioteca.Models.Prestamo>();
+    var sanciones = Model.Sanciones?.OrderByDescending(s => s.FechaSancion).Take(10).ToList()
+                    ?? new List<SistemaBiblioteca.Models.Sancion>();
+}
+
+<div class="row">
+    <!-- Columna izquierda: datos personales -->
+    <div class="col-md-4 mb-4">
+        <div class="card border-0 shadow text-center">
+            <div class="card-body p-4">
+                <i class="fas fa-user-circle fa-5x text-primary mb-3"></i>
+                <h4 class="fw-bold mb-1">@Model.NombreCompleto</h4>
+                <p class="text-muted mb-2">@Model.Rol?.NombreRol</p>
+                <span class="badge bg-@(Model.Activo ? "success" : "secondary") mb-3">
+                    @(Model.Activo ? "Activo" : "Inactivo")
+                </span>
+
+                <ul class="list-unstyled text-start small mb-3">
+                    <li class="mb-1"><i class="fas fa-id-card color2"></i> <strong>DNI:</strong> @Model.DNI</li>
+                    <li class="mb-1"><i class="fas fa-envelope color2"></i> <strong>Correo:</strong> @Model.Correo</li>
+                    <li class="mb-1"><i class="fas fa-phone color2"></i> <strong>Teléfono:</strong> @(string.IsNullOrWhiteSpace(Model.Telefono) ? "—" : Model.Telefono)</li>
+                    <li class="mb-1"><i class="fas fa-map-marker-alt color2"></i> <strong>Dirección:</strong> @(string.IsNullOrWhiteSpace(Model.Direccion) ? "—" : Model.Direccion)</li>
+                    <li class="mb-1"><i class="fas fa-calendar color2"></i> <strong>Registro:</strong> @Model.FechaRegistro.ToString("dd/MM/yyyy")</li>
+                    <li><i class="fas fa-sign-in-alt color2"></i> <strong>Último acceso:</strong> @(Model.UltimoAcceso?.ToString("dd/MM/yyyy HH:mm") ?? "Nunca")</li>
+                </ul>
+
+                <div class="d-grid gap-2">
+                    @if (esAdmin)
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.IdUsuario" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    }
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna derecha: resumen y movimientos -->
+    <div class="col-md-8">
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body">
+                        <small class="color2 d-block">Préstamos activos</small>
+                        <h3 class="fw-bold color1 mb-0">@ViewBag.PrestamosActivos</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body">
+                        <small class="color2 d-block">Sanciones pendientes</small>
+                        <h3 class="fw-bold @((int)ViewBag.SancionesPendientes > 0 ? "text-danger" : "color1") mb-0">@ViewBag.SancionesPendientes</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body">
+                        <small class="color2 d-block">Deuda pendiente</small>
+                        <h3 class="fw-bold color1 mb-0">S/ @(((decimal)ViewBag.TotalSanciones).ToString("N2"))</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimos préstamos -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-color2 text-white">
+                <h6 class="mb-0 color5"><i class="fas fa-book"></i> Últimos préstamos</h6>
+            </div>
+            <div class="card-body p-0">
+                @if (prestamos.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-3">Libro</th>
+                                    <th>Préstamo</th>
+                                    <th>Devolución esperada</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var p in prestamos)
+                                {
+                                    <tr>
+                                        <td class="ps-3">@p.Ejemplar?.Libro?.Titulo</td>
+                                        <td>@p.FechaPrestamo.ToString("dd/MM/yyyy")</td>
+                                        <td>@p.FechaDevolucionEsperada.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            @if (p.EstadoPrestamo == "Devuelto")
+                                            {
+                                                <span class="badge bg-success">Devuelto</span>
+                                            }
+                                            else if (p.EstaVencido)
+                                            {
+                                                <span class="badge bg-danger">Vencido</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-primary">Activo</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted p-3 mb-0">Sin préstamos registrados.</p>
+                }
+            </div>
+        </div>
+
+        <!-- Últimas sanciones -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-color2 text-white">
+                <h6 class="mb-0 color5"><i class="fas fa-gavel"></i> Últimas sanciones</h6>
+            </div>
+            <div class="card-body p-0">
+                @if (sanciones.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-3">Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in sanciones)
+                                {
+                                    <tr>
+                                        <td class="ps-3">@s.FechaSancion.ToString("dd/MM/yyyy")</td>
+                                        <td>@s.TipoSancion</td>
+                                        <td>S/ @s.Monto.ToString("N2")</td>
+                                        <td>
+                                            <span class="badge bg-@(s.EstadoSancion == "Pagada" ? "success" : s.EstadoSancion == "Anulada" ? "secondary" : "warning")">
+                                                @s.EstadoSancion
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-3">
+                                            @if (esPersonal)
+                                            {
+                                                <a asp-controller="Sanciones" asp-action="Details" asp-route-id="@s.IdSancion"
+                                                   class="btn btn-outline-primary btn-sm" title="Ver sanción">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted p-3 mb-0">Sin sanciones registradas.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

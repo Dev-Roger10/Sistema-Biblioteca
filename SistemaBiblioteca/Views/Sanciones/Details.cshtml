@@ -1,0 +1,142 @@
+@model SistemaBiblioteca.Models.Sancion
+
+@*
+    Detalle de una sanción. El controlador ya verificó que quien la ve es el
+    dueño o el personal, y calculó Model.MontoRestante.
+*@
+
+@{
+    ViewData["Title"] = "Detalle de Sanción";
+
+    string rol = Context.Session.GetString("UsuarioRol") ?? string.Empty;
+    bool esPersonal = rol == "Administrador" || rol == "Bibliotecario";
+
+    // Para volver al listado correcto según quién mira la página
+    string accionVolver = esPersonal ? "Index" : "MisSanciones";
+
+    var pagos = Model.Pagos?.OrderByDescending(p => p.FechaPago).ToList()
+                ?? new List<SistemaBiblioteca.Models.Pago>();
+    decimal pagado = pagos.Sum(p => p.MontoPagado);
+
+    string claseEstado = Model.EstadoSancion switch
+    {
+        "Pagada" => "success",
+        "Anulada" => "secondary",
+        _ => "warning"
+    };
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-color2 text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0 color5">
+                    <i class="fas fa-gavel"></i> Sanción #@Model.IdSancion
+                </h3>
+                <span class="badge bg-@claseEstado fs-6">@Model.EstadoSancion</span>
+            </div>
+            <div class="card-body p-4">
+                <!-- Datos generales -->
+                <div class="alert alert-info border-0" style="background: linear-gradient(135deg, rgba(8,137,255,0.2) 0%, rgba(8,207,255,0.2) 100%); border-left: 4px solid var(--color-2);">
+                    <h5 class="color1"><i class="fas fa-info-circle color2"></i> Información</h5>
+                    <p class="mb-1 color1">
+                        <strong>Usuario:</strong> @Model.Usuario.NombreCompleto (@Model.Usuario.DNI)
+                        — @Model.Usuario.Rol?.NombreRol
+                    </p>
+                    <p class="mb-1 color1"><strong>Tipo:</strong> @Model.TipoSancion</p>
+                    <p class="mb-1 color1"><strong>Fecha:</strong> @Model.FechaSancion.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p class="mb-0 color1" style="white-space: pre-line;"><strong>Descripción:</strong> @Model.Descripcion</p>
+                </div>
+
+                <!-- Préstamo asociado (las sanciones manuales no tienen) -->
+                @if (Model.Prestamo?.Ejemplar?.Libro != null)
+                {
+                    <div class="alert alert-light border-0 mb-4" style="background: linear-gradient(135deg, rgba(8,207,255,0.1) 0%, rgba(14,255,249,0.1) 100%);">
+                        <h6 class="fw-bold color1"><i class="fas fa-book color2"></i> Préstamo asociado</h6>
+                        <p class="mb-1 color1"><strong>Libro:</strong> @Model.Prestamo.Ejemplar.Libro.Titulo</p>
+                        <p class="mb-1 color1"><strong>Ejemplar:</strong> @Model.Prestamo.Ejemplar.CodigoEjemplar</p>
+                        <p class="mb-0 color1">
+                            <strong>Retraso:</strong> @Model.Prestamo.DiasRetraso día(s)
+                            — esperado el @Model.Prestamo.FechaDevolucionEsperada.ToString("dd/MM/yyyy")
+                        </p>
+                    </div>
+                }
+
+                <!-- Montos -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 text-center" style="background: linear-gradient(135deg, rgba(8,207,255,0.1) 0%, rgba(14,255,249,0.1) 100%);">
+                            <div class="card-body">
+                                <small class="color2 d-block">Monto Total</small>
+                                <h3 class="fw-bold color1 mb-0">S/ @Model.Monto.ToString("N2")</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-success text-white text-center border-0">
+                            <div class="card-body">
+                                <small class="color5 d-block">Pagado</small>
+                                <h3 class="fw-bold mb-0">S/ @pagado.ToString("N2")</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-danger text-white text-center border-0">
+                            <div class="card-body">
+                                <small class="color5 d-block">Restante</small>
+                                <h3 class="fw-bold mb-0">S/ @Model.MontoRestante.ToString("N2")</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial de pagos -->
+                <h6 class="fw-bold color1 mb-2"><i class="fas fa-history color2"></i> Historial de Pagos</h6>
+                @if (pagos.Any())
+                {
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th class="color1">Fecha</th>
+                                    <th class="color1">Método</th>
+                                    <th class="color1">Monto</th>
+                                    <th class="color1">Comprobante</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var pago in pagos)
+                                {
+                                    <tr>
+                                        <td class="color2">@pago.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td class="color2">@pago.MetodoPago</td>
+                                        <td><strong class="color1">S/ @pago.MontoPagado.ToString("N2")</strong></td>
+                                        <td class="color2">@pago.Comprobante</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mb-4">Aún no se registran pagos.</p>
+                }
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                    <a asp-action="@accionVolver" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+
+                    @* Solo el personal cobra, y solo mientras la sanción siga pendiente *@
+                    @if (esPersonal && Model.EstadoSancion == "Pendiente")
+                    {
+                        <a asp-action="RegistrarPago" asp-route-id="@Model.IdSancion" class="btn btn-success">
+                            <i class="fas fa-dollar-sign"></i> Registrar Pago
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

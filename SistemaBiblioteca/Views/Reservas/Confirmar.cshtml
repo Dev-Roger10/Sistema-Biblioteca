@@ -1,0 +1,87 @@
+@model SistemaBiblioteca.Models.Reserva
+
+@*
+    Confirmación de una reserva pendiente: el bibliotecario elige un ejemplar disponible
+    y se genera el préstamo (POST Reservas/ConfirmarYPrestar).
+    ViewBag.EjemplaresDisponibles: List<Ejemplar> del libro reservado, con su Sede cargada.
+*@
+
+@{
+    ViewData["Title"] = "Confirmar Reserva";
+    var ejemplares = ViewBag.EjemplaresDisponibles as List<SistemaBiblioteca.Models.Ejemplar>
+                     ?? new List<SistemaBiblioteca.Models.Ejemplar>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-color2 text-white">
+                <h3 class="mb-0 color5">
+                    <i class="fas fa-check-circle"></i> Confirmar Reserva y Registrar Préstamo
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <!-- Datos de la reserva -->
+                <div class="alert alert-info border-0" style="background: linear-gradient(135deg, rgba(8,137,255,0.2) 0%, rgba(8,207,255,0.2) 100%); border-left: 4px solid var(--color-2);">
+                    <h5 class="color1"><i class="fas fa-info-circle color2"></i> Información de la Reserva</h5>
+                    <p class="mb-1 color1"><strong>Usuario:</strong> @Model.Usuario?.NombreCompleto (@Model.Usuario?.DNI)</p>
+                    <p class="mb-1 color1"><strong>Libro:</strong> @Model.Libro?.Titulo</p>
+                    <p class="mb-1 color1"><strong>Tipo:</strong> @Model.TipoReserva</p>
+                    <p class="mb-1 color1"><strong>Reservado el:</strong> @Model.FechaReserva.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p class="mb-0 color1">
+                        <strong>Vence:</strong>
+                        @(Model.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "Sin fecha")
+                    </p>
+                </div>
+
+                @if (!ejemplares.Any())
+                {
+                    <!-- Sin stock: no se puede prestar, solo volver -->
+                    <div class="alert alert-warning border-0">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        No hay ejemplares disponibles de este libro en este momento.
+                        La reserva sigue pendiente hasta que se devuelva alguno.
+                    </div>
+                    <div class="d-grid">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver a Reservas
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <!-- El tag helper del form agrega el token antiforgery automáticamente -->
+                    <form asp-action="ConfirmarYPrestar" method="post">
+                        <input type="hidden" name="idReserva" value="@Model.IdReserva" />
+
+                        <div class="mb-4">
+                            <label for="idEjemplar" class="form-label fw-semibold color2">Ejemplar a prestar *</label>
+                            <select id="idEjemplar" name="idEjemplar" class="form-select form-select-lg" required>
+                                <option value="">-- Seleccione un ejemplar --</option>
+                                @foreach (var ejemplar in ejemplares)
+                                {
+                                    <option value="@ejemplar.IdEjemplar">
+                                        @ejemplar.CodigoEjemplar — @ejemplar.Sede?.NombreSede
+                                    </option>
+                                }
+                            </select>
+                            <div class="form-text">
+                                @ejemplares.Count ejemplar(es) disponible(s). Al confirmar se registra el préstamo
+                                con los días que corresponden al rol del usuario.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check"></i> Confirmar y Prestar
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
