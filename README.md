@@ -30,8 +30,13 @@ en una sola aplicación web con acceso según el rol de cada persona.
 
 SIGB resuelve el día a día de una biblioteca universitaria: saber qué libros hay y dónde,
 reservarlos, prestarlos, controlar las devoluciones y aplicar multas cuando hay retraso.
-Estudiantes y docentes gestionan lo suyo en línea; el personal administra el catálogo, los
+
+Antes, quien quería un libro tenía que ir hasta la biblioteca solo para averiguar si estaba
+disponible y para pedirlo en préstamo. Con SIGB eso ya no hace falta: estudiantes y docentes
+pueden consultar el catálogo y **reservar en línea** desde cualquier lugar, y pasan a la
+biblioteca solo a recoger su libro. El personal, por su parte, administra el catálogo, los
 préstamos y las sanciones desde un panel propio.
+
 
 **Puntos clave**
 
